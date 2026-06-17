@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 const question = 'Q. 지금 사무실 온도는 어때요?';
 
 const options = [
-  { id: 'agree', label: '추워요!', description: '맞이 올 것 같아요' },
-  { id: 'disagree', label: '더워요!', description: '더워진 거 같아요' },
+  { id: 'agree', label: '추워요!', description: '히터 좀 틀어주세요' },
+  { id: 'disagree', label: '더워요!', description: '에어컨 좀 켜주세요' },
 ];
 
 export default function VotePage() {
