@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { voteApi } from '../api/voteApi';
 import { useVoteStore } from '../store/voteStore';
+import { usePolling } from './useSocket';
+
+const POLL_INTERVAL_MS = 30_000; // 30초
 
 export const useVote = (roomId: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
 
-  const { selectedUserId, setSelectedUserId, setVoteResults } = useVoteStore();
+  const { myVote, setMyVote, setVoteResults } = useVoteStore();
 
   const submitVote = async (targetUserId: string) => {
     setIsLoading(true);
@@ -14,9 +18,9 @@ export const useVote = (roomId: string) => {
 
     try {
       await voteApi.submitVote(roomId, targetUserId);
-      setSelectedUserId(targetUserId);
+      setMyVote(targetUserId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit vote');
+      setError(err instanceof Error ? err.message : '투표 제출에 실패했습니다');
       throw err;
     } finally {
       setIsLoading(false);
@@ -24,26 +28,25 @@ export const useVote = (roomId: string) => {
   };
 
   const fetchVoteResults = async () => {
-    setIsLoading(true);
-    setError(null);
-
     try {
       const results = await voteApi.getVoteResults(roomId);
       setVoteResults(results);
       return results;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch vote results');
-      throw err;
-    } finally {
-      setIsLoading(false);
+      setError(err instanceof Error ? err.message : '투표 결과를 불러오는 데 실패했습니다');
     }
   };
 
+  // 30초마다 투표 결과 자동 갱신
+  usePolling(fetchVoteResults, POLL_INTERVAL_MS, isPolling);
+
   return {
-    selectedUserId,
+    myVote,
     isLoading,
     error,
     submitVote,
     fetchVoteResults,
+    startPolling: () => setIsPolling(true),
+    stopPolling: () => setIsPolling(false),
   };
 };

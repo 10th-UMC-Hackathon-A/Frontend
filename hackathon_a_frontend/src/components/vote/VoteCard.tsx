@@ -9,7 +9,7 @@ interface VoteCardProps {
 }
 
 export const VoteCard: React.FC<VoteCardProps> = ({
-  userId,
+  userId: _userId,
   nickname,
   isSelected = false,
   onSelect,

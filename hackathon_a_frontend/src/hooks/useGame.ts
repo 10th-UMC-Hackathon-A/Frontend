@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { gameApi } from '../api/gameApi';
 import { useGameStore } from '../store/gameStore';
-import { GamePhase } from '../types/game';
+import type { GamePhase } from '../types/game';
 
 export const useGame = (roomId: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { currentPhase, setCurrentPhase, setWinner, setPunishment } = useGameStore();
+  const { currentPhase, setCurrentPhase, setLoser, setPunishment } = useGameStore();
 
   const startGame = async () => {
     setIsLoading(true);
@@ -65,7 +65,7 @@ export const useGame = (roomId: string) => {
     getGameState,
     submitGameAction,
     setCurrentPhase,
-    setWinner,
+    setLoser,
     setPunishment,
   };
 };

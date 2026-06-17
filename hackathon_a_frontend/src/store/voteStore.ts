@@ -9,7 +9,7 @@ interface VoteOption {
 interface VoteState {
   question: string | null;
   options: VoteOption[];
-  myVote: string | null; // selected option id
+  myVote: string | null;
   voteResults: VoteResult[];
   isComplete: boolean;
 

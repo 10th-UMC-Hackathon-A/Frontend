@@ -29,7 +29,7 @@ export const generateLadderConnections = (
 export const traceLadderPath = (
   startColumn: number,
   connections: number[][],
-  totalColumns: number
+  _totalColumns: number
 ): number => {
   let currentColumn = startColumn;
 

@@ -1,59 +1,22 @@
-import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useRef } from 'react';
 
-interface UseSocketOptions {
-  url?: string;
-  autoConnect?: boolean;
-}
-
-export const useSocket = (options: UseSocketOptions = {}) => {
-  const {
-    url = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000',
-    autoConnect = true,
-  } = options;
-
-  const socketRef = useRef<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+// 소켓 대신 REST API 폴링을 사용합니다 (30초 간격)
+export const usePolling = (
+  callback: () => void | Promise<void>,
+  intervalMs: number = 30000,
+  enabled: boolean = true
+) => {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
 
   useEffect(() => {
-    if (!autoConnect) return;
+    if (!enabled) return;
 
-    socketRef.current = io(url, {
-      transports: ['websocket'],
-    });
+    const tick = () => callbackRef.current();
 
-    const socket = socketRef.current;
+    tick(); // 마운트 시 즉시 1회 실행
+    const id = setInterval(tick, intervalMs);
 
-    socket.on('connect', () => {
-      setIsConnected(true);
-    });
-
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [url, autoConnect]);
-
-  const emit = (event: string, data?: any) => {
-    socketRef.current?.emit(event, data);
-  };
-
-  const on = (event: string, handler: (...args: any[]) => void) => {
-    socketRef.current?.on(event, handler);
-  };
-
-  const off = (event: string, handler?: (...args: any[]) => void) => {
-    socketRef.current?.off(event, handler);
-  };
-
-  return {
-    socket: socketRef.current,
-    isConnected,
-    emit,
-    on,
-    off,
-  };
+    return () => clearInterval(id);
+  }, [intervalMs, enabled]);
 };
