@@ -1,14 +1,13 @@
-import React from 'react';
+import { Outlet } from 'react-router-dom'
+import Navbar from './Navbar'
 
-interface LayoutProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const Layout: React.FC<LayoutProps> = ({ children, className = '' }) => {
+export default function MainLayout() {
   return (
-    <div className={`layout ${className}`}>
-      <main className="layout-main">{children}</main>
+    <div className="min-h-screen bg-white flex flex-col items-center">
+      <Navbar />
+      <main className="w-full max-w-[430px] flex-1 flex flex-col px-6 py-8">
+        <Outlet />
+      </main>
     </div>
-  );
-};
+  )
+}

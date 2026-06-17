@@ -7,6 +7,7 @@ export default function NicknamePage() {
 
   const handleEnter = () => {
     if (!nickname.trim()) return
+    // 나중에 roomStore에 저장
     navigate('/vote')
   }
 
