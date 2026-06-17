@@ -1,33 +1,36 @@
 import React from 'react';
 
 interface ProgressBarProps {
-  current: number;
-  total: number;
-  showLabel?: boolean;
+  value: number; // 0-100
+  label?: string;
+  showPercentage?: boolean;
   className?: string;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
-  current,
-  total,
-  showLabel = true,
+  value,
+  label,
+  showPercentage = true,
   className = '',
 }) => {
-  const percentage = Math.min((current / total) * 100, 100);
+  const clamped = Math.min(Math.max(value, 0), 100);
 
   return (
-    <div className={`progress-bar-container ${className}`}>
-      <div className="progress-bar">
+    <div className={`w-full ${className}`}>
+      {(label || showPercentage) && (
+        <div className="flex justify-between items-center mb-1">
+          {label && <span className="text-sm font-medium text-gray-800">{label}</span>}
+          {showPercentage && (
+            <span className="text-sm font-bold text-gray-800">{Math.round(clamped)}%</span>
+          )}
+        </div>
+      )}
+      <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
         <div
-          className="progress-bar-fill"
-          style={{ width: `${percentage}%` }}
+          className="h-full bg-black rounded-full transition-all duration-500"
+          style={{ width: `${clamped}%` }}
         />
       </div>
-      {showLabel && (
-        <span className="progress-label">
-          {current} / {total}
-        </span>
-      )}
     </div>
   );
 };

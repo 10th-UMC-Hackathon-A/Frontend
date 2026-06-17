@@ -1,29 +1,32 @@
 import { create } from 'zustand';
+import type { Participant } from '../types/room';
 
 interface RoomState {
   roomId: string | null;
-  participants: string[];
+  hostId: string | null;
+  participants: Participant[];
+
   setRoomId: (roomId: string) => void;
-  setParticipants: (participants: string[]) => void;
-  addParticipant: (participant: string) => void;
-  removeParticipant: (participant: string) => void;
+  setHostId: (hostId: string) => void;
+  setParticipants: (participants: Participant[]) => void;
+  addParticipant: (participant: Participant) => void;
+  removeParticipant: (participantId: string) => void;
+  reset: () => void;
 }
 
 export const useRoomStore = create<RoomState>((set) => ({
   roomId: null,
+  hostId: null,
   participants: [],
 
   setRoomId: (roomId) => set({ roomId }),
-
+  setHostId: (hostId) => set({ hostId }),
   setParticipants: (participants) => set({ participants }),
-
   addParticipant: (participant) =>
+    set((state) => ({ participants: [...state.participants, participant] })),
+  removeParticipant: (participantId) =>
     set((state) => ({
-      participants: [...state.participants, participant],
+      participants: state.participants.filter((p) => p.id !== participantId),
     })),
-
-  removeParticipant: (participant) =>
-    set((state) => ({
-      participants: state.participants.filter((p) => p !== participant),
-    })),
+  reset: () => set({ roomId: null, hostId: null, participants: [] }),
 }));
