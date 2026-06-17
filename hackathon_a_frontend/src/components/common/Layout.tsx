@@ -1,14 +1,11 @@
-import React from 'react';
+import { Outlet } from 'react-router-dom';
 
-interface LayoutProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const Layout: React.FC<LayoutProps> = ({ children, className = '' }) => {
+export default function Layout() {
   return (
-    <div className={`layout ${className}`}>
-      <main className="layout-main">{children}</main>
+    <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="w-full max-w-[430px] min-h-screen bg-white flex flex-col px-5 py-6">
+        <Outlet />
+      </div>
     </div>
   );
-};
+}
