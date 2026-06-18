@@ -70,17 +70,13 @@ export default function VotePage() {
         );
       })}
     </ul>
-  </section>
-            );
-          })}
-        </ul>
 
-        {error && (
-          <p role="alert" className="text-xs text-gray-400">
-            {error}
-          </p>
-        )}
-      </section>
+    {error && (
+      <p role="alert" className="text-xs text-gray-400">
+        {error}
+      </p>
+    )}
+  </section>
 
       {/* 투표하기 버튼 */}
       <button

@@ -141,9 +141,4 @@ return (
     </button>
   </main>
 );
-      >
-        {isLoading ? '입장 중...' : '입장하기'}
-      </button>
-    </main>
-  );
 }
