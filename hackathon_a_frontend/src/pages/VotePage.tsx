@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const question = 'Q. 지금 사무실 온도는 어때요?';
+const question = 'Q. 지금 강의실 온도 어때요?';
+const participantCount = 0;
 
 const options = [
-  { id: 'agree', label: '추워요!', description: '에어컨 좀 줄여주세요 ㅜㅜ' },
-  { id: 'disagree', label: '더워요!', description: '에어컨 좀 켜주세요!!!' },
+  { id: 'agree', label: '추워요!' },
+  { id: 'disagree', label: '더워요!' },
 ];
 
 export default function VotePage() {
@@ -19,14 +20,23 @@ export default function VotePage() {
 
   return (
     <div className="flex flex-col flex-1 justify-between">
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-gray-900">찬반투표</h2>
-          <p className="text-base text-gray-700 mt-2">{question}</p>
-          <p className="text-sm text-gray-400 mt-1">맞는 줄 하나를 선택해 투표해 주세요</p>
+      <div className="flex flex-col items-center gap-5">
+        {/* 상단 뱃지 */}
+        <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
+          찬반 투표
         </div>
 
-        <div className="flex flex-col gap-3 mt-2">
+        {/* 질문 */}
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-lg font-bold text-gray-900">{question}</p>
+          <p className="text-sm text-gray-400">지금까지 {participantCount}명 참가 중...</p>
+        </div>
+
+        {/* 캐릭터 이미지 */}
+        <div className="w-28 h-28 bg-gray-200 rounded-xl" />
+
+        {/* 투표 선택지 */}
+        <div className="flex flex-col gap-3 w-full">
           {options.map((option) => {
             const isSelected = selected === option.id;
             return (
@@ -34,30 +44,26 @@ export default function VotePage() {
                 key={option.id}
                 onClick={() => setSelected(option.id)}
                 className={[
-                  'w-full py-7 px-5 rounded-2xl text-left transition-all',
+                  'w-full py-8 rounded-2xl text-lg font-bold transition-all',
                   isSelected
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-white border border-gray-200 text-gray-800',
+                    ? 'bg-blue-100 text-blue-600 ring-2 ring-blue-400'
+                    : 'bg-gray-100 text-gray-800',
                 ].join(' ')}
               >
-                <p className="text-lg font-bold">{option.label}</p>
-                <p className={`text-sm mt-1 ${isSelected ? 'text-gray-300' : 'text-gray-400'}`}>
-                  {option.description}
-                </p>
+                {option.label}
               </button>
             );
           })}
         </div>
 
-        <p className="text-xs text-gray-400 text-center mt-1">
-          이미 투표하셨다면 선택할 수 없어요
-        </p>
+        <p className="text-xs text-gray-400">ⓘ 한 번 투표하면 변경할 수 없어요</p>
       </div>
 
+      {/* 투표하기 버튼 */}
       <button
         onClick={handleVote}
         disabled={!selected}
-        className="w-full bg-gray-800 text-white py-4 rounded-xl text-sm font-medium disabled:bg-gray-200 disabled:text-gray-400"
+        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition"
       >
         투표하기
       </button>
