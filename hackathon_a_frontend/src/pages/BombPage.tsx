@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BombCard } from "../components/bomb/BombCard";
 import { Button } from "../components/common/Button";
 
-const CARD_COUNT = 6;
+const CARD_COUNT = 6; //참가자 수와 동일하도록
 const currentPlayer = "더워요2 (닉네임)";
 
 export default function BombPage() {
