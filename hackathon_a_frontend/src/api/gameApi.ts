@@ -11,7 +11,7 @@ export const gameApi = {
     return response.data;
   },
 
-  submitGameAction: async (roomId: string, action: any) => {
+  submitGameAction: async (roomId: string, action: Record<string, unknown>) => {
     const response = await axiosInstance.post(`/rooms/${roomId}/game/action`, action);
     return response.data;
   },

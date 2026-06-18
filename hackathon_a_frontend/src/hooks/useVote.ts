@@ -5,20 +5,21 @@ import { usePolling } from './useSocket';
 
 const POLL_INTERVAL_MS = 30_000; // 30초
 
-export const useVote = (roomId: string) => {
+export const useVote = (roomId: number) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
 
   const { myVote, setMyVote, setVoteResults } = useVoteStore();
 
-  const submitVote = async (targetUserId: string) => {
+  const submitVote = async (position: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      await voteApi.submitVote(roomId, targetUserId);
-      setMyVote(targetUserId);
+      const result = await voteApi.submitVote(roomId, position);
+      setMyVote(position);
+      setVoteResults(result.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '투표 제출에 실패했습니다');
       throw err;
@@ -29,9 +30,9 @@ export const useVote = (roomId: string) => {
 
   const fetchVoteResults = async () => {
     try {
-      const results = await voteApi.getVoteResults(roomId);
-      setVoteResults(results);
-      return results;
+      const result = await voteApi.getVoteStatus(roomId);
+      setVoteResults(result.data);
+      return result.data;
     } catch (err) {
       setError(err instanceof Error ? err.message : '투표 결과를 불러오는 데 실패했습니다');
     }

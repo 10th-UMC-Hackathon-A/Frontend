@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { VoteResult } from '../types/vote';
+import type { VoteResultItem } from '../types/vote';
 
 interface VoteOption {
   id: string;
@@ -10,13 +10,13 @@ interface VoteState {
   question: string | null;
   options: VoteOption[];
   myVote: string | null;
-  voteResults: VoteResult[];
+  voteResults: VoteResultItem[];
   isComplete: boolean;
 
   setQuestion: (question: string) => void;
   setOptions: (options: VoteOption[]) => void;
   setMyVote: (optionId: string) => void;
-  setVoteResults: (results: VoteResult[]) => void;
+  setVoteResults: (results: VoteResultItem[]) => void;
   setIsComplete: (isComplete: boolean) => void;
   reset: () => void;
 }
