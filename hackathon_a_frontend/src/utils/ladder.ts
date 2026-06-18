@@ -28,8 +28,7 @@ export const generateLadderConnections = (
  */
 export const traceLadderPath = (
   startColumn: number,
-  connections: number[][],
-  _totalColumns: number
+  connections: number[][]
 ): number => {
   let currentColumn = startColumn;
 
@@ -59,7 +58,7 @@ export const generateLadderResults = (
   const results = new Map<string, string>();
 
   participants.forEach((participant, index) => {
-    const destinationIndex = traceLadderPath(index, connections, participants.length);
+    const destinationIndex = traceLadderPath(index, connections);
     results.set(participant, destinations[destinationIndex]);
   });
 

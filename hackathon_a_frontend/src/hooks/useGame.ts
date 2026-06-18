@@ -42,7 +42,7 @@ export const useGame = (roomId: string) => {
     }
   };
 
-  const submitGameAction = async (action: any) => {
+  const submitGameAction = async (action: Record<string, unknown>) => {
     setIsLoading(true);
     setError(null);
 

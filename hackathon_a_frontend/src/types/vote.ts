@@ -1,21 +1,21 @@
-export interface Vote {
-  id: string;
-  roomId: string;
-  voterId: string;
-  targetUserId: string;
-  createdAt: string;
+export interface VoteResultItem {
+  label: string;
+  count: number;
 }
 
-export interface VoteResult {
-  userId: string;
-  nickname: string;
-  voteCount: number;
-  percentage: number;
+export interface SubmitVoteResponse {
+  message: string;
+  error: null | string;
+  data: VoteResultItem[];
 }
 
-export interface VoteSession {
-  roomId: string;
-  votes: Vote[];
-  results: VoteResult[];
-  isComplete: boolean;
+export interface VoteMemberItem {
+  label: string;
+  participateList: string[];
+}
+
+export interface GetVoteMembersResponse {
+  message: string;
+  error: null | string;
+  data: VoteMemberItem[];
 }

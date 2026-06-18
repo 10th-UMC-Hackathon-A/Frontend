@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 
 // 소켓 대신 REST API 폴링을 사용합니다 (30초 간격)
 export const usePolling = (
@@ -7,7 +7,9 @@ export const usePolling = (
   enabled: boolean = true
 ) => {
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+  useLayoutEffect(() => {
+    callbackRef.current = callback;
+  });
 
   useEffect(() => {
     if (!enabled) return;
