@@ -15,6 +15,7 @@ export default function VotePage() {
   const [selected, setSelected] = useState<string | null>(null);
   const navigate = useNavigate();
   const { roomId } = useRoomStore();
+  // 테스트용 더미: roomId가 없을 때도 동작하도록 0으로 폴백
   const { submitVote, isLoading, error } = useVote(roomId ?? 0);
 
   const handleVote = async () => {
@@ -70,17 +71,13 @@ export default function VotePage() {
         );
       })}
     </ul>
-  </section>
-            );
-          })}
-        </ul>
 
-        {error && (
-          <p role="alert" className="text-xs text-gray-400">
-            {error}
-          </p>
-        )}
-      </section>
+    {error && (
+      <p role="alert" className="text-xs text-gray-400">
+        {error}
+      </p>
+    )}
+  </section>
 
       {/* 투표하기 버튼 */}
       <button

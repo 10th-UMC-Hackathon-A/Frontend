@@ -1,75 +1,64 @@
-import { useState } from "react";
-import { BombCard } from "../components/bomb/BombCard";
-import { Button } from "../components/common/Button";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const CARD_COUNT = 6; //참가자 수와 동일하도록
-const currentPlayer = "더워요2 (닉네임)";
+const MOCK_WINNER = '더워요2';
+const PARTICIPANT_COUNT = 5;
 
 export default function BombPage() {
-  const [bombIndex] = useState(() => Math.floor(Math.random() * CARD_COUNT));
-  const [revealedCards, setRevealedCards] = useState<number[]>([]);
+  const [isResult, setIsResult] = useState(false);
+  const navigate = useNavigate();
 
-  const isFinished = revealedCards.includes(bombIndex);
+  if (isResult) {
+    return (
+      <div className="flex flex-col flex-1 gap-6">
+        <div className="flex justify-center">
+          <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
+            투표 결과
+          </div>
+        </div>
 
-  const reveal = (index: number) => {
-    setRevealedCards((prev) =>
-      prev.includes(index) ? prev : [...prev, index],
+        <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
+
+        <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
+          <span className="absolute top-4 right-4 text-white font-bold text-lg">
+            {PARTICIPANT_COUNT}
+          </span>
+          <div className="w-20 h-20 bg-gray-200 rounded-full" />
+          <p className="text-2xl font-black text-white mt-1">{MOCK_WINNER}</p>
+          <p className="text-white font-semibold">당첨!</p>
+          <p className="text-blue-200 text-sm">제비뽑기 결과로 선정되었어요</p>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 mt-2">
+          <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
+          <div className="w-24 h-24 bg-gray-200 rounded-xl" />
+        </div>
+
+        <button
+          onClick={() => navigate('/final')}
+          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto"
+        >
+          미션 확인하기
+        </button>
+      </div>
     );
-  };
-
-  const handleCardClick = (index: number) => {
-    if (isFinished) return;
-    reveal(index);
-  };
-
-  const handleDraw = () => {
-    if (isFinished) return;
-    const remaining = Array.from({ length: CARD_COUNT }, (_, i) => i).filter(
-      (i) => !revealedCards.includes(i),
-    );
-    if (remaining.length === 0) return;
-    const pick = remaining[Math.floor(Math.random() * remaining.length)];
-    reveal(pick);
-  };
+  }
 
   return (
     <div className="flex flex-col flex-1 justify-between">
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold">제비뽑기</h1>
-          <p className="text-sm text-gray-400">
-            제비를 하나 뽑아 벌칙자를 정해요
-          </p>
+      <div className="flex flex-col items-center gap-5">
+        <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
+          제비 뽑기
         </div>
-
-        <div className="flex flex-col gap-1 items-center bg-gray-100 rounded-2xl py-4">
-          <p className="text-xs text-gray-400">지금 차례</p>
-          <p className="text-base font-semibold text-gray-900">
-            {currentPlayer}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          {Array.from({ length: CARD_COUNT }, (_, i) => (
-            <BombCard
-              key={i}
-              index={i}
-              isRevealed={revealedCards.includes(i)}
-              isBomb={i === bombIndex}
-              disabled={isFinished && !revealedCards.includes(i)}
-              onClick={() => handleCardClick(i)}
-            />
-          ))}
-        </div>
-
-        <p className="text-xs text-gray-400 text-center">
-          당첨 제비를 뽑은 사람이 벌칙자!
-        </p>
+        <p className="text-lg font-bold text-gray-900">제비를 뽑아 벌칙자를 정해요</p>
       </div>
 
-      <Button onClick={handleDraw} disabled={isFinished} fullWidth>
+      <button
+        onClick={() => setIsResult(true)}
+        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold"
+      >
         제비 뽑기
-      </Button>
+      </button>
     </div>
   );
 }
