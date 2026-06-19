@@ -4,29 +4,29 @@ export interface PenaltyItem {
 }
 
 export interface CreatePenaltyResponse {
+  timestamp: string;
   code: string;
   message: string;
-  error: null | string;
-  data: PenaltyItem;
+  result: PenaltyItem;
 }
 
 export interface GetPenaltiesResponse {
+  timestamp: string;
   code: string;
   message: string;
-  error: null | string;
-  data: PenaltyItem[];
+  result: PenaltyItem[];
 }
 
 export interface UpdatePenaltyResponse {
+  timestamp: string;
   code: string;
   message: string;
-  error: null | string;
-  data: PenaltyItem;
+  result: PenaltyItem;
 }
 
 export interface DeletePenaltyResponse {
+  timestamp: string;
   code: string;
   message: string;
-  error: null | string;
-  data: null;
+  result: null;
 }
