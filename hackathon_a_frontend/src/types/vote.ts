@@ -16,7 +16,8 @@ export interface VoteMemberItem {
 }
 
 export interface GetVoteMembersResponse {
+  timestamp: string;
+  code: string;
   message: string;
-  error: null | string;
-  data: VoteMemberItem[];
+  result: VoteMemberItem[];
 }

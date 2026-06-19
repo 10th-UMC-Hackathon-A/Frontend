@@ -48,7 +48,7 @@ export default function NicknamePage() {
     if (!roomId) return;
     resetGame();
     roomApi.getRooms().then((res) => {
-      const found = res.data.find((r) => r.roomId === roomId);
+      const found = res.result.find((r) => r.roomId === roomId);
       if (found) {
         setFetchedRoomName(found.roomName);
         setRoomName(found.roomName);
@@ -68,14 +68,13 @@ export default function NicknamePage() {
 
     try {
       const result = await roomApi.joinParticipant(nickname.trim(), roomId);
-      const { accessToken, refreshToken } = result.data;
+      const accessToken = result.result;
 
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('roomId', String(roomId));
       localStorage.removeItem('myVote');
 
-      setTokens(accessToken, refreshToken);
+      setTokens(accessToken, '');
       setRoomId(roomId);
       saveNickname(nickname.trim());
 
