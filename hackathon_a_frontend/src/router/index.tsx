@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import NicknamePage from '../pages/NicknamePage';
 import VotePage from '../pages/VotePage';
+import VoteProgressPage from '../pages/VoteProgressPage';
 import VoteResultPage from '../pages/VoteResultPage';
 import BombPage from '../pages/BombPage';
 import RoulettePage from '../pages/RoulettePage';
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <NicknamePage /> },
       { path: '/vote', element: <VotePage /> },
+      { path: '/progress', element: <VoteProgressPage /> },
       { path: '/result', element: <VoteResultPage /> },
       { path: '/bomb', element: <BombPage /> },
       { path: '/roulette', element: <RoulettePage /> },
