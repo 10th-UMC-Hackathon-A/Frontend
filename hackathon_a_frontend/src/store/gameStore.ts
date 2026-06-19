@@ -6,6 +6,7 @@ type MiniGameMode = 'bomb' | 'roulette' | 'ladder';
 interface GameState {
   currentPhase: GamePhase;
   miniGameMode: MiniGameMode | null;
+  winnerVoteLabel: string | null;
   loserId: string | null;
   loserNickname: string | null;
   punishment: string | null;
@@ -13,6 +14,7 @@ interface GameState {
 
   setCurrentPhase: (phase: GamePhase) => void;
   setMiniGameMode: (mode: MiniGameMode) => void;
+  setWinnerVoteLabel: (label: string) => void;
   setLoser: (id: string, nickname: string) => void;
   setPunishment: (punishment: string, seconds?: number) => void;
   reset: () => void;
@@ -21,6 +23,7 @@ interface GameState {
 const INITIAL_STATE = {
   currentPhase: 'nickname' as GamePhase,
   miniGameMode: null,
+  winnerVoteLabel: null,
   loserId: null,
   loserNickname: null,
   punishment: null,
@@ -32,6 +35,7 @@ export const useGameStore = create<GameState>((set) => ({
 
   setCurrentPhase: (phase) => set({ currentPhase: phase }),
   setMiniGameMode: (mode) => set({ miniGameMode: mode }),
+  setWinnerVoteLabel: (label) => set({ winnerVoteLabel: label }),
   setLoser: (id, nickname) => set({ loserId: id, loserNickname: nickname }),
   setPunishment: (punishment, seconds = 300) => set({ punishment, punishmentSeconds: seconds }),
   reset: () => set(INITIAL_STATE),

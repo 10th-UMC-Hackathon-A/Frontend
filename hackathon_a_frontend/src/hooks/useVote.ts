@@ -18,6 +18,7 @@ export const useVote = (roomId: number) => {
 
     try {
       const result = await voteApi.submitVote(roomId, position);
+      localStorage.setItem('myVote', position);
       setMyVote(position);
       setVoteResults(result.result);
     } catch (err) {

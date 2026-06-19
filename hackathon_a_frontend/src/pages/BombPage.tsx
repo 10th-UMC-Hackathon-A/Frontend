@@ -1,19 +1,49 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRoomStore } from '../store/roomStore';
+import { useGameStore } from '../store/gameStore';
 
-const MOCK_WINNER = '더워요2';
-const PARTICIPANT_COUNT = 5;
+const DUMMY_PARTICIPANTS = [
+  { id: 'd1', nickname: '김철수' },
+  { id: 'd2', nickname: '이영희' },
+  { id: 'd3', nickname: '박민준' },
+  { id: 'd4', nickname: '최서연' },
+  { id: 'd5', nickname: '정도현' },
+];
+
+const DUMMY_MISSIONS = ['에어컨 1도 조절하기', '팔굽혀펴기 10개', '노래 한 소절 부르기'];
 
 export default function BombPage() {
+  const [isSpinning, setIsSpinning] = useState(false);
   const [isResult, setIsResult] = useState(false);
   const navigate = useNavigate();
+
+  const { participants } = useRoomStore();
+  const { setLoser, setPunishment, loserNickname } = useGameStore();
+
+  const pool =
+    participants.length > 0
+      ? participants.map((p) => ({ id: p.id, nickname: p.nickname }))
+      : DUMMY_PARTICIPANTS;
+
+  const handleDraw = () => {
+    setIsSpinning(true);
+    setTimeout(() => {
+      const loser = pool[Math.floor(Math.random() * pool.length)];
+      const mission = DUMMY_MISSIONS[Math.floor(Math.random() * DUMMY_MISSIONS.length)];
+      setLoser(loser.id, loser.nickname);
+      setPunishment(mission);
+      setIsSpinning(false);
+      setTimeout(() => setIsResult(true), 800);
+    }, 2000);
+  };
 
   if (isResult) {
     return (
       <div className="flex flex-col flex-1 gap-6">
         <div className="flex justify-center">
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
-            투표 결과
+            제비뽑기 결과
           </div>
         </div>
 
@@ -21,10 +51,10 @@ export default function BombPage() {
 
         <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
           <span className="absolute top-4 right-4 text-white font-bold text-lg">
-            {PARTICIPANT_COUNT}
+            {pool.length}
           </span>
           <div className="w-20 h-20 bg-gray-200 rounded-full" />
-          <p className="text-2xl font-black text-white mt-1">{MOCK_WINNER}</p>
+          <p className="text-2xl font-black text-white mt-1">{loserNickname}</p>
           <p className="text-white font-semibold">당첨!</p>
           <p className="text-blue-200 text-sm">제비뽑기 결과로 선정되었어요</p>
         </div>
@@ -36,7 +66,7 @@ export default function BombPage() {
 
         <button
           onClick={() => navigate('/final')}
-          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto"
+          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
           미션 확인하기
         </button>
@@ -51,13 +81,29 @@ export default function BombPage() {
           제비 뽑기
         </div>
         <p className="text-lg font-bold text-gray-900">제비를 뽑아 벌칙자를 정해요</p>
+        <p className="text-sm text-gray-400">{pool.length}명 중 한 명이 선택됩니다</p>
+
+        <ul className="w-full flex flex-col gap-2 list-none p-0 mt-4">
+          {pool.map((p) => (
+            <li
+              key={p.id}
+              className={`flex items-center gap-3 bg-gray-100 rounded-xl px-4 py-3 transition-all ${
+                isSpinning ? 'animate-pulse' : ''
+              }`}
+            >
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0" />
+              <span className="text-sm font-medium text-gray-700">{p.nickname}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <button
-        onClick={() => setIsResult(true)}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold"
+        onClick={handleDraw}
+        disabled={isSpinning}
+        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
       >
-        제비 뽑기
+        {isSpinning ? '뽑는 중...' : '제비 뽑기'}
       </button>
     </div>
   );
