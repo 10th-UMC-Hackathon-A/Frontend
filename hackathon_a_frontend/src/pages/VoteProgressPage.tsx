@@ -10,7 +10,7 @@ function getSecondsUntilNextDraw(): number {
   const now = new Date();
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
-  const nextMark = minutes < 30 ? 30 : 60;
+  const nextMark = minutes + 1; // 투표 주기(분 단위). 주기를 바꾸려면 이 "+1"을 원하는 분 수로 수정
   return (nextMark - minutes) * 60 - seconds;
 }
 
