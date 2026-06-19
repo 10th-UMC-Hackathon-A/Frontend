@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 
 // 소켓 대신 REST API 폴링을 사용합니다 (30초 간격)
 export const usePolling = (
-  callback: () => void | Promise<void>,
+  callback: () => unknown,
   intervalMs: number = 30000,
   enabled: boolean = true
 ) => {
