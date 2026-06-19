@@ -19,7 +19,7 @@ export const useVote = (roomId: number) => {
     try {
       const result = await voteApi.submitVote(roomId, position);
       setMyVote(position);
-      setVoteResults(result.data);
+      setVoteResults(result.result);
     } catch (err) {
       setError(err instanceof Error ? err.message : '투표 제출에 실패했습니다');
       throw err;
@@ -31,8 +31,8 @@ export const useVote = (roomId: number) => {
   const fetchVoteResults = async () => {
     try {
       const result = await voteApi.getVoteStatus(roomId);
-      setVoteResults(result.data);
-      return result.data;
+      setVoteResults(result.result);
+      return result.result;
     } catch (err) {
       setError(err instanceof Error ? err.message : '투표 결과를 불러오는 데 실패했습니다');
     }

@@ -4,9 +4,10 @@ export interface VoteResultItem {
 }
 
 export interface SubmitVoteResponse {
+  timestamp: string;
+  code: string;
   message: string;
-  error: null | string;
-  data: VoteResultItem[];
+  result: VoteResultItem[];
 }
 
 export interface VoteMemberItem {
