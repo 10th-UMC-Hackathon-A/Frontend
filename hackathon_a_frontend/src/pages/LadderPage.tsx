@@ -2,17 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
-import { useRoomStore } from '../store/roomStore';
-import { useGameStore } from '../store/gameStore';
 
 const ROW_COUNT = 6;
-const DUMMY_PARTICIPANTS = [
-  { id: 'd1', nickname: '김철수' },
-  { id: 'd2', nickname: '이영희' },
-  { id: 'd3', nickname: '박민준' },
-  { id: 'd4', nickname: '최서연' },
-];
-const DUMMY_MISSIONS = ['에어컨 1도 조절하기', '팔굽혀펴기 10개', '노래 한 소절 부르기'];
 
 interface Props {
   participantCount?: number;
@@ -65,7 +56,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
       ctx.moveTo(x, padY);
       ctx.lineTo(x, padY + ROW_COUNT * rowGap);
       ctx.strokeStyle = '#d1d5db';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 7;
       ctx.lineCap = 'round';
       ctx.stroke();
     }
@@ -78,7 +69,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
       ctx.moveTo(x1, y);
       ctx.lineTo(x2, y);
       ctx.strokeStyle = '#d1d5db';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 7;
       ctx.lineCap = 'round';
       ctx.stroke();
     }
@@ -91,7 +82,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
 
       ctx.beginPath();
       ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 7;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.moveTo(points[0].x, points[0].y);
@@ -124,14 +115,6 @@ export default function LadderPage({ participantCount = 4 }: Props) {
     observer.observe(container);
     return () => observer.disconnect();
   }, []);
-
-  const { participants } = useRoomStore();
-  const { setLoser, setPunishment, loserNickname } = useGameStore();
-
-  const pool =
-    participants.length > 0
-      ? participants.map((p) => ({ id: p.id, nickname: p.nickname }))
-      : DUMMY_PARTICIPANTS;
 
   const handleStart = () => {
     if (isAnimating) return;
@@ -232,11 +215,11 @@ export default function LadderPage({ participantCount = 4 }: Props) {
 
         <div className="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-3 flex-1">
           {/* 상단: 결과 (꽝/당첨) */}
-          <div className="flex justify-between px-3.5">
+          <div className="flex justify-between">
             {ladder.results.map((r, i) => (
               <div
                 key={i}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold
+                className={`flex h-7.5 w-16 items-center justify-center rounded-lg text-sm font-semibold
                   ${r === '당첨' ? 'bg-blue-400 text-white' : 'bg-gray-300 text-gray-500'}`}
               >
                 {r}
@@ -275,7 +258,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
         disabled={isAnimating}
         className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
       >
-        {animDone ? '다시 하기' : '사다리 타기'}
+        사다리 타기
       </button>
     </div>
   );
