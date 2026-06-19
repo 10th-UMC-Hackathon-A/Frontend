@@ -3,18 +3,19 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
 
-const PARTICIPANT_COUNT = 4;
 const ROW_COUNT = 6;
 
-export default function LadderPage() {
+interface Props {
+  participantCount?: number;
+}
+export default function LadderPage({ participantCount = 4 }: Props) {
+  const count = Math.min(participantCount, 5);
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [winnerStartCol, setWinnerStartCol] = useState<number | null>(null);
   const animRef = useRef<number | null>(null);
 
-  // 렌더용: useState / 캔버스 그리기용: useRef
-  const [ladder, setLadder] = useState<LadderData>(() => generateLadder(PARTICIPANT_COUNT, ROW_COUNT));
+  const [ladder, setLadder] = useState<LadderData>(() => generateLadder(count, ROW_COUNT));
   const ladderRef = useRef<LadderData>(ladder);
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -29,7 +30,7 @@ export default function LadderPage() {
     const H = canvas.height;
     const padX = 32;
     const padY = 24;
-    const colGap = (W - padX * 2) / (PARTICIPANT_COUNT - 1);
+    const colGap = (W - padX * 2) / (count - 1);
     const rowGap = (H - padY * 2) / ROW_COUNT;
     return { W, H, padX, padY, colGap, rowGap };
   };
@@ -48,7 +49,7 @@ export default function LadderPage() {
 
     ctx.clearRect(0, 0, W, H);
 
-    for (let c = 0; c < PARTICIPANT_COUNT; c++) {
+    for (let c = 0; c < count; c++) {
       const x = colX(c, padX, colGap);
       ctx.beginPath();
       ctx.moveTo(x, padY);
@@ -72,37 +73,31 @@ export default function LadderPage() {
       ctx.stroke();
     }
 
-if (points && progress !== null && points.length >= 2) {
-  const totalSegments = points.length - 1;
-  const targetIdx = progress >= 1
-    ? totalSegments
-    : Math.max(0, Math.floor(progress * totalSegments));
-  const partial = progress >= 1
-    ? 1
-    : (progress * totalSegments) - targetIdx;
+    if (points && progress !== null && points.length >= 2) {
+      const totalSegments = points.length - 1;
+      const targetIdx =
+        progress >= 1 ? totalSegments : Math.max(0, Math.floor(progress * totalSegments));
+      const partial = progress >= 1 ? 1 : progress * totalSegments - targetIdx;
 
-  ctx.beginPath();
-  ctx.strokeStyle = '#3b82f6';
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.moveTo(points[0].x, points[0].y);
+      ctx.beginPath();
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.moveTo(points[0].x, points[0].y);
 
-  for (let i = 0; i < targetIdx; i++) {
-    ctx.lineTo(points[i + 1].x, points[i + 1].y);
-  }
+      for (let i = 0; i < targetIdx; i++) {
+        ctx.lineTo(points[i + 1].x, points[i + 1].y);
+      }
 
-  if (targetIdx < totalSegments && targetIdx + 1 < points.length) {
-    const from = points[targetIdx];
-    const to = points[targetIdx + 1];
-    ctx.lineTo(
-      from.x + (to.x - from.x) * partial,
-      from.y + (to.y - from.y) * partial
-    );
-  }
+      if (targetIdx < totalSegments && targetIdx + 1 < points.length) {
+        const from = points[targetIdx];
+        const to = points[targetIdx + 1];
+        ctx.lineTo(from.x + (to.x - from.x) * partial, from.y + (to.y - from.y) * partial);
+      }
 
-  ctx.stroke();
-}
+      ctx.stroke();
+    }
   }
 
   useEffect(() => {
@@ -120,67 +115,63 @@ if (points && progress !== null && points.length >= 2) {
     return () => observer.disconnect();
   }, []);
 
-const handleStart = () => {
-  if (isAnimating) return;
+  const handleStart = () => {
+    if (isAnimating) return;
 
-  // animDone이면 layout 체크 없이 바로 리셋
-  if (animDone) {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (canvas && container) {
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight || 240;
+    if (animDone) {
+      const canvas = canvasRef.current;
+      const container = containerRef.current;
+      if (canvas && container) {
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight || 240;
+      }
+      const newLadder = generateLadder(count, ROW_COUNT);
+      ladderRef.current = newLadder;
+      setLadder(newLadder);
+      setAnimDone(false);
+      setWinnerIdx(null);
+      setShowResult(false);
+      drawLadder(newLadder, null, null);
+      return;
     }
-    const newLadder = generateLadder(PARTICIPANT_COUNT, ROW_COUNT);
-    ladderRef.current = newLadder;
-    setLadder(newLadder);
-    setAnimDone(false);
-    setWinnerIdx(null);
-    setShowResult(false);
-    drawLadder(newLadder, null, null);
-    return;
-  }
 
-  const layout = getLayout();
-  if (!layout || layout.colGap <= 0 || isNaN(layout.colGap)) return;
-  const { padX, padY, colGap, rowGap } = layout;
+    const layout = getLayout();
+    if (!layout || layout.colGap <= 0 || isNaN(layout.colGap)) return;
+    const { padX, padY, colGap, rowGap } = layout;
 
-  setIsAnimating(true);
+    setIsAnimating(true);
 
-  const winnerResultIdx = ladderRef.current.results.indexOf('당첨');
-let points: PathPoint[] = [];
-let foundCol = 0;
-for (let col = 0; col < PARTICIPANT_COUNT; col++) {
-  const path = tracePath(col, ladderRef.current, ROW_COUNT, padX, padY, colGap, rowGap);
-  const endCol = Math.round((path[path.length - 1].x - padX) / colGap);
-  if (endCol === winnerResultIdx) {
-    foundCol = col;
-    points = path;
-    break;
-  }
-}
-setWinnerStartCol(foundCol);
-  const duration = 2000;
-  const start = performance.now();
+    const winnerResultIdx = ladderRef.current.results.indexOf('당첨');
+    const points = tracePath(
+      winnerResultIdx,
+      ladderRef.current,
+      ROW_COUNT,
+      padX,
+      padY,
+      colGap,
+      rowGap
+    );
+    const duration = 2000;
+    const start = performance.now();
 
-  const animate = (now: number) => {
-    const t = Math.min((now - start) / duration, 1);
-    drawLadder(ladderRef.current, points, t);
+    const animate = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      drawLadder(ladderRef.current, points, t);
 
-    if (t < 1) {
-      animRef.current = requestAnimationFrame(animate);
-    } else {
-      const lastPoint = points[points.length - 1];
-      const finalCol = Math.round((lastPoint.x - padX) / colGap);
-      setWinnerIdx(finalCol);
-      setAnimDone(true);
-      setIsAnimating(false);
-      setTimeout(() => setShowResult(true), 600);
-    }
+      if (t < 1) {
+        animRef.current = requestAnimationFrame(animate);
+      } else {
+        const lastPoint = points[points.length - 1];
+        const finalCol = Math.round((lastPoint.x - padX) / colGap);
+        setWinnerIdx(finalCol);
+        setAnimDone(true);
+        setIsAnimating(false);
+        setTimeout(() => setShowResult(true), 600);
+      }
+    };
+
+    animRef.current = requestAnimationFrame(animate);
   };
-
-  animRef.current = requestAnimationFrame(animate);
-};
 
   if (showResult && winnerIdx !== null) {
     const winnerName = ladder.participants[winnerIdx];
@@ -193,9 +184,7 @@ setWinnerStartCol(foundCol);
         </div>
         <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
         <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
-          <span className="absolute top-4 right-4 text-white font-bold text-lg">
-            {PARTICIPANT_COUNT}
-          </span>
+          <span className="absolute top-4 right-4 text-white font-bold text-lg">{count}</span>
           <div className="w-20 h-20 bg-gray-200 rounded-full" />
           <p className="text-2xl font-black text-white mt-1">{winnerName}</p>
           <p className="text-white font-semibold">당첨!</p>
@@ -224,30 +213,37 @@ setWinnerStartCol(foundCol);
         <p className="text-lg font-bold text-gray-900">사다리를 타고 벌칙자를 정해요</p>
 
         <div className="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-3 flex-1">
-          <div className="flex justify-around">
-            {ladder.participants.map((p, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <div className={`w-10 h-10 rounded-full ${winnerStartCol === i ? 'bg-blue-400' : 'bg-gray-300'}`} />
-                <span className="text-xs text-gray-500">{p}</span>
-              </div>
-            ))}
-          </div>
-
-          <div ref={containerRef} className="w-full flex-1 flex flex-col" style={{ minHeight: '200px' }}>
-            <canvas ref={canvasRef} className="w-full h-full" />
-          </div>
-
-          <div className="flex justify-around">
+          {/* 상단: 결과 (꽝/당첨) */}
+          <div className="flex justify-between px-3.5">
             {ladder.results.map((r, i) => (
               <div
                 key={i}
                 className={`px-3 py-1 rounded-lg text-sm font-semibold
-                  ${animDone && winnerIdx === i
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-500 border border-gray-200'
-                  }`}
+                  ${r === '당첨' ? 'bg-blue-400 text-white' : 'bg-gray-300 text-gray-500'}`}
               >
                 {r}
+              </div>
+            ))}
+          </div>
+
+          {/* 캔버스 */}
+          <div
+            ref={containerRef}
+            className="w-full flex-1 flex flex-col"
+            style={{ minHeight: '200px' }}
+          >
+            <canvas ref={canvasRef} className="w-full h-full" />
+          </div>
+
+          {/* 하단: 참가자 */}
+          <div className="flex justify-between px-2">
+            {ladder.participants.map((p, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-10 h-10 rounded-full
+                  ${animDone && winnerIdx === i ? 'bg-blue-500' : 'bg-gray-300'}`}
+                />
+                <span className="text-xs text-gray-500">{p}</span>
               </div>
             ))}
           </div>
