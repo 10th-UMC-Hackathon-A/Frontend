@@ -2,12 +2,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
+import { useRoomStore } from '../store/roomStore';
+import { useGameStore } from '../store/gameStore';
 
 const ROW_COUNT = 6;
+const DUMMY_PARTICIPANTS = [
+  { id: 'd1', nickname: '김철수' },
+  { id: 'd2', nickname: '이영희' },
+  { id: 'd3', nickname: '박민준' },
+  { id: 'd4', nickname: '최서연' },
+];
+const DUMMY_MISSIONS = ['에어컨 1도 조절하기', '팔굽혀펴기 10개', '노래 한 소절 부르기'];
 
 interface Props {
   participantCount?: number;
 }
+
 export default function LadderPage({ participantCount = 4 }: Props) {
   const count = Math.min(participantCount, 5);
   const navigate = useNavigate();
@@ -115,6 +125,14 @@ export default function LadderPage({ participantCount = 4 }: Props) {
     return () => observer.disconnect();
   }, []);
 
+  const { participants } = useRoomStore();
+  const { setLoser, setPunishment, loserNickname } = useGameStore();
+
+  const pool =
+    participants.length > 0
+      ? participants.map((p) => ({ id: p.id, nickname: p.nickname }))
+      : DUMMY_PARTICIPANTS;
+
   const handleStart = () => {
     if (isAnimating) return;
 
@@ -179,7 +197,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
       <div className="flex flex-col flex-1 gap-6">
         <div className="flex justify-center">
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
-            투표 결과
+            사다리 결과
           </div>
         </div>
         <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
@@ -196,7 +214,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
         </div>
         <button
           onClick={() => navigate('/final')}
-          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto"
+          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
           미션 확인하기
         </button>

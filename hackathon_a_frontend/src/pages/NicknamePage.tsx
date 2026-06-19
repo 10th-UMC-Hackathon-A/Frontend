@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { useRoomStore } from '../store/roomStore';
 import { useUserStore } from '../store/userStore';
+import { useGameStore } from '../store/gameStore';
 
 const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]{2,8}$/;
 
@@ -11,12 +12,14 @@ export default function NicknamePage() {
   const [agreed, setAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fetchedRoomName, setFetchedRoomName] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { setRoomId } = useRoomStore();
+  const { setRoomId, setRoomName } = useRoomStore();
   const { setNickname: saveNickname, setTokens } = useUserStore();
+  const { reset: resetGame } = useGameStore();
 
   const roomIdParam = searchParams.get('roomId');
   // const roomId = roomIdParam ? Number(roomIdParam) : null; > 최종 roomId적용 할 때 주석 해제
@@ -36,11 +39,23 @@ export default function NicknamePage() {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-
     if (token) {
       navigate('/vote', { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (!roomId) return;
+    resetGame();
+    roomApi.getRooms().then((res) => {
+      const found = res.result.find((r) => r.roomId === roomId);
+      if (found) {
+        setFetchedRoomName(found.roomName);
+        setRoomName(found.roomName);
+      }
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isNicknameValid = NICKNAME_REGEX.test(nickname.trim());
   const isValid = isNicknameValid && agreed;
@@ -53,12 +68,13 @@ export default function NicknamePage() {
 
     try {
       const result = await roomApi.joinParticipant(nickname.trim(), roomId);
-      const { accessToken, refreshToken } = result.data;
+      const accessToken = result.result;
 
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('roomId', String(roomId));
+      localStorage.removeItem('myVote');
 
-      setTokens(accessToken, refreshToken);
+      setTokens(accessToken, '');
       setRoomId(roomId);
       saveNickname(nickname.trim());
 
@@ -85,7 +101,7 @@ export default function NicknamePage() {
         <div className="w-full flex flex-col items-center gap-1">
           <span className="text-xs text-gray-400">진행 중인 방</span>
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
-            가천대학교 502호 강의실
+            {fetchedRoomName ?? `방 #${roomId}`}
           </div>
         </div>
 

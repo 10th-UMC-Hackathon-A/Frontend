@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVote } from '../hooks/useVote';
 import { useRoomStore } from '../store/roomStore';
@@ -14,20 +14,35 @@ const options = [
 export default function VotePage() {
   const [selected, setSelected] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { roomId } = useRoomStore();
-  // 테스트용 더미: roomId가 없을 때도 동작하도록 0으로 폴백
-  const { submitVote, isLoading, error } = useVote(roomId ?? 0);
+  const { roomId: storeRoomId } = useRoomStore();
+  const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || null);
+  const { submitVote, isLoading, error, myVote } = useVote(roomId ?? 0);
+
+  useEffect(() => {
+    if (myVote || localStorage.getItem('myVote')) {
+      navigate('/progress', { replace: true });
+    }
+  }, [myVote, navigate]);
 
   const handleVote = async () => {
     const option = options.find((o) => o.id === selected);
     if (!option || !roomId) return;
     try {
       await submitVote(option.position);
-      navigate('/result');
+      navigate('/progress');
     } catch {
       // error는 useVote 내부에서 관리
     }
   };
+
+  if (!roomId) {
+    return (
+      <main className="flex flex-col flex-1 items-center justify-center gap-4">
+        <p className="text-base font-medium text-gray-700">방 정보를 불러올 수 없습니다.</p>
+        <p className="text-sm text-gray-400">QR 코드를 다시 스캔해주세요.</p>
+      </main>
+    );
+  }
 
   return (
 <main className="flex flex-col flex-1 justify-between">

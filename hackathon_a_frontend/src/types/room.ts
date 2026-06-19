@@ -4,31 +4,32 @@ export interface RoomItem {
 }
 
 export interface CreateRoomResponse {
+  timestamp: string;
+  code: string;
   message: string;
-  error: null | string;
-  data: RoomItem;
+  result: RoomItem;
 }
 
 export interface GetRoomsResponse {
+  timestamp: string;
   code: string;
   message: string;
-  error: null | string;
-  data: RoomItem[];
+  result: RoomItem[];
 }
 
 export interface DeleteRoomResponse {
+  timestamp: string;
+  code: string;
   message: string;
-  error: null | string;
-  data: null;
+  result: null;
 }
 
+// JoinParticipant 응답 필드명은 백엔드 확인 필요 (Swagger에 BaseResponseString으로만 표시)
 export interface JoinParticipantResponse {
+  timestamp: string;
+  code: string;
   message: string;
-  error: null | string;
-  data: {
-    accessToken: string;
-    refreshToken: string;
-  };
+  result: string;
 }
 
 export interface Participant {
