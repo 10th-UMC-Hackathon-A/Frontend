@@ -5,6 +5,9 @@ import type {
   GetPenaltiesResponse,
   UpdatePenaltyResponse,
   DeletePenaltyResponse,
+  DrawPenaltyResponse,
+  DrawPenaltyUserResponse,
+  MissionCompleteResponse,
 } from '../types/penalty';
 
 const USE_DUMMY = import.meta.env.VITE_USE_DUMMY_API === 'true';
@@ -31,6 +34,24 @@ export const penaltyApi = {
   deletePenalty: async (penaltyId: number): Promise<DeletePenaltyResponse> => {
     if (USE_DUMMY) return dummyPenaltyApi.deletePenalty(penaltyId);
     const response = await axiosInstance.delete<DeletePenaltyResponse>(`/penalties/${penaltyId}`);
+    return response.data;
+  },
+
+  drawPenalty: async (roomId: number): Promise<DrawPenaltyResponse> => {
+    if (USE_DUMMY) return dummyPenaltyApi.drawPenalty(roomId);
+    const response = await axiosInstance.post<DrawPenaltyResponse>('/penalties/draw', null, { params: { roomId } });
+    return response.data;
+  },
+
+  drawPenaltyUser: async (roomId: number): Promise<DrawPenaltyUserResponse> => {
+    if (USE_DUMMY) return dummyPenaltyApi.drawPenaltyUser(roomId);
+    const response = await axiosInstance.post<DrawPenaltyUserResponse>('/penalties/draw-user', null, { params: { roomId } });
+    return response.data;
+  },
+
+  missionComplete: async (roomId: number): Promise<MissionCompleteResponse> => {
+    if (USE_DUMMY) return dummyPenaltyApi.missionComplete(roomId);
+    const response = await axiosInstance.post<MissionCompleteResponse>('/penalties/mission-complete', null, { params: { roomId } });
     return response.data;
   },
 };

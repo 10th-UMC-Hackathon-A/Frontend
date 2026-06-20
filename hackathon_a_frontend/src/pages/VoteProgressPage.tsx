@@ -7,12 +7,17 @@ import creamThinking from '../assets/Cream/Thinking.png';
 
 const question = 'Q. 지금 강의실 온도 어때요?';
 
+const ROUND_DURATION_SEC = 60;
+
 function getSecondsUntilNextDraw(): number {
+  const roundStart = Number(localStorage.getItem('roundStartTime'));
+  if (roundStart) {
+    const elapsed = Math.floor((Date.now() - roundStart) / 1000);
+    return Math.max(0, ROUND_DURATION_SEC - elapsed);
+  }
+  // 첫 라운드 fallback: 다음 분 단위까지 남은 시간
   const now = new Date();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
-  const nextMark = minutes + 1; // 투표 주기(분 단위). 주기를 바꾸려면 이 "+1"을 원하는 분 수로 수정
-  return (nextMark - minutes) * 60 - seconds;
+  return 60 - now.getSeconds();
 }
 
 export default function VoteProgressPage() {
@@ -61,8 +66,8 @@ export default function VoteProgressPage() {
     voteResults.length > 0
       ? voteResults
       : [
-          { label: '추워요!', count: 0 },
-          { label: '더워요!', count: 0 },
+          { label: '추워요', count: 0 },
+          { label: '더워요', count: 0 },
         ];
 
   return (
@@ -96,7 +101,7 @@ export default function VoteProgressPage() {
               </div>
               <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요!' ? 'bg-blue-400' : 'bg-red-400'}`}
+                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요' ? 'bg-blue-400' : 'bg-red-400'}`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>
