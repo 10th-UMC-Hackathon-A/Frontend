@@ -112,14 +112,14 @@ export default function NicknamePage() {
   return (
     <main className="flex flex-col flex-1 justify-between">
       <section className="flex flex-col items-center gap-6 mt-6">
-        <div className="w-full flex flex-col items-center gap-1">
+        <div className="w-full bg-blue-50 rounded-2xl px-5 py-4 flex flex-col items-center gap-1">
           <span className="text-xs text-gray-400">진행 중인 방</span>
-          <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
+          <p className="text-lg font-bold text-gray-900">
             {fetchedRoomName ?? `방 #${roomId}`}
-          </div>
+          </p>
         </div>
 
-        <img src={logo} alt="냉방전쟁 로고" style={{ width: '400px' }} className="object-contain" />
+        <img src={logo} alt="냉방전쟁 로고" className="w-68 object-contain" />
 
         <div className="w-full flex flex-col items-center gap-1">
           <p className="text-xl font-bold text-gray-900">닉네임을 입력해 주세요</p>
@@ -169,7 +169,7 @@ export default function NicknamePage() {
           />
           <span className="text-sm text-gray-500">
             <Link to="/terms" className="underline text-blue-500" onClick={(e) => e.stopPropagation()}>
-              이용 약관 및 개인정보 처리 방침
+              이용 약관 및 개인 정보 처리 방침
             </Link>에 동의합니다.
           </span>
         </label>

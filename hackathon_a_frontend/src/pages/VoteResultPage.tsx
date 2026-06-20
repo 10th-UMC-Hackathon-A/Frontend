@@ -107,7 +107,7 @@ export default function VoteResultPage() {
       </section>
 
       <div className="flex justify-center">
-        <img src={getCreamImage()} alt="크림 캐릭터" className="w-36 h-36 object-contain" />
+        <img src={getCreamImage()} alt="크림 캐릭터" className="w-64 h-64 object-contain" />
       </div>
 
       {winner ? (

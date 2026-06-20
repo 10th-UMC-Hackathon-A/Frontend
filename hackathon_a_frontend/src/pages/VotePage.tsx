@@ -76,7 +76,7 @@ export default function VotePage() {
         <img
           src={getCreamImage(selected, voteTypes)}
           alt="크림 캐릭터"
-          className="w-36 h-36 object-contain"
+          className="w-48 h-48 object-contain"
         />
 
         <ul className="flex flex-col gap-3 w-full list-none p-0">
@@ -112,6 +112,11 @@ export default function VotePage() {
           <p role="alert" className="text-xs text-gray-400">{error}</p>
         )}
       </section>
+
+      <p className="flex items-center gap-1 text-xs text-gray-400 mt-2">
+        <span>ⓘ</span>
+        <span>한 번 투표하면 변경할 수 없어요</span>
+      </p>
 
       <button
         onClick={handleVote}

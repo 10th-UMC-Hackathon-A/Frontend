@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
+import creamDefault from '../assets/Cream/Default.png';
 
 export default function DrawPage() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function DrawPage() {
       </section>
 
       <div className="flex justify-center">
-        <div className="w-28 h-28 bg-gray-200 rounded-xl" aria-hidden="true" />
+        <img src={creamDefault} alt="크림 캐릭터" className="w-64 h-64 object-contain" />
       </div>
 
       {voteResults.length > 0 && (
