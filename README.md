@@ -4,7 +4,7 @@
 
 ## 폴더 구조
 
-​```
+```
 HACKATHON_A_FRONTEND/
 ├── public/
 ├── src/
@@ -33,7 +33,7 @@ HACKATHON_A_FRONTEND/
 ├── tsconfig.node.json
 ├── vercel.json
 └── vite.config.ts
-​```
+```
 
 <br>
 
@@ -41,15 +41,15 @@ HACKATHON_A_FRONTEND/
 
 프로젝트 루트에 `.env` 파일을 생성하고 아래 내용을 작성해주세요.
 
-​```env
+```env
 VITE_API_BASE_URL=http://your-api-server-url
-​```
+```
 
 <br>
 
 ## 실행 방법
 
-​```bash
+```bash
 # 패키지 설치
 npm install
 
@@ -58,7 +58,7 @@ npm run dev
 
 # 빌드
 npm run build
-​```
+```
 
 <br>
 
@@ -66,13 +66,13 @@ npm run build
 
 ### 브랜치 구조
 
-​```
+```
 main
 └── dev
     ├── feat/기능명
     ├── fix/버그명
     └── refactor/명칭
-​```
+```
 
 | 브랜치 | 용도 |
 |--------|------|
@@ -84,19 +84,19 @@ main
 
 브랜치 네이밍은 **케밥 케이스**를 사용합니다.
 
-​```
+```
 feat/login-api
 fix/vote-410-error
-​```
+```
 
 ### 작업 흐름
 
-​```
+```
 1. dev 브랜치에서 feature 브랜치를 생성합니다.
 2. 작업 완료 후 dev 브랜치로 PR을 올립니다.
 3. 코드 리뷰 후 dev에 머지합니다.
 4. 배포 시 dev → main으로 머지합니다.
-​```
+```
 
 <br>
 
@@ -112,11 +112,11 @@ fix/vote-410-error
 | `chore` | 파일 옮기기, 파일 이름 변경, 주석 추가 등 단순한 작업 |
 | `build` | 라이브러리 설치 |
 
-​```
+```
 feat: 투표 페이지 구현
 fix: 410 에러 핸들링 추가
 docs: README 작성
-​```
+```
 
 <br>
 
@@ -125,6 +125,6 @@ docs: README 작성
 - ISSUE, PR은 **템플릿에 맞춰** 작성합니다.
 - PR 제목에 **닉네임 / 이름**을 기입합니다.
 
-​```
+```
 [홍길동] feat: 투표 페이지 구현
-​```
+```
