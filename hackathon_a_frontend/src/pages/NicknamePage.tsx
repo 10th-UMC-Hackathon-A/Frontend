@@ -96,16 +96,16 @@ export default function NicknamePage() {
   }
 
   return (
-    <main className="flex flex-col flex-1 justify-between">
-      <section className="flex flex-col items-center gap-6 mt-6">
-        <div className="w-full flex flex-col items-center gap-1">
+    <main className="relative flex flex-col flex-1">
+      <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-1 bg-blue-50 rounded-2xl px-6 py-3">
           <span className="text-xs text-gray-400">진행 중인 방</span>
-          <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
+          <span className="text-sm font-bold text-blue-600">
             {fetchedRoomName ?? `방 #${roomId}`}
-          </div>
+          </span>
         </div>
 
-        <div className="w-28 h-28 rounded-full bg-gray-200" aria-hidden="true" />
+        <img src="/logo1.svg" alt="냉방전쟁 로고" className="w-32 h-32" />
 
         <div className="w-full flex flex-col items-center gap-1">
           <p className="text-xl font-bold text-gray-900">닉네임을 입력해 주세요</p>
@@ -157,12 +157,12 @@ export default function NicknamePage() {
             이용 약관 및 개인 정보 처리 방침에 동의합니다.
           </span>
         </label>
-      </section>
+      </div>
 
       <button
         onClick={handleEnter}
         disabled={!isValid || isLoading}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed hover:bg-blue-400 active:bg-blue-600 transition"
+        className="absolute bottom-0 left-0 w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed hover:bg-blue-400 active:bg-blue-600 transition"
       >
         {isLoading ? '입장 중...' : '입장하기'}
       </button>
