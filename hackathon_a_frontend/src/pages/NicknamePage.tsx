@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import logo from '../assets/Logo.png';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { useRoomStore } from '../store/roomStore';
@@ -118,7 +119,7 @@ export default function NicknamePage() {
           </div>
         </div>
 
-        <div className="w-28 h-28 rounded-full bg-gray-200" aria-hidden="true" />
+        <img src={logo} alt="냉방전쟁 로고" style={{ width: '400px' }} className="object-contain" />
 
         <div className="w-full flex flex-col items-center gap-1">
           <p className="text-xl font-bold text-gray-900">닉네임을 입력해 주세요</p>

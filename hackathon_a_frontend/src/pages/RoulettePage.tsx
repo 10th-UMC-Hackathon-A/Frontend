@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { calculateRouletteRotation, getRandomSpinDuration } from '../utils/roulette';
 import { useRoomStore } from '../store/roomStore';
+import { useGameStore } from '../store/gameStore';
+import creamDefault from '../assets/Cream/Default.png';
+import creamCongrats from '../assets/Cream/Congrats.png';
 
 const SECTOR_COLORS = [
   '#DBEAFE', '#93C5FD', '#60A5FA', '#FEE2E2',
@@ -14,6 +17,7 @@ const DUMMY_NAMES = ['도로로', '기로로', '케로로', '타마마', '쿠루
 export default function RoulettePage() {
   const navigate = useNavigate();
   const { participants: storeParticipants } = useRoomStore();
+  const { setLoser } = useGameStore();
 
   const rawNames =
     storeParticipants.length >= 2
@@ -91,17 +95,19 @@ export default function RoulettePage() {
         <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
         <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
           <span className="absolute top-4 right-4 text-white font-bold text-lg">{count}</span>
-          <div className="w-20 h-20 bg-gray-200 rounded-full" />
-          <p className="text-2xl font-black text-white mt-1">{participants[winnerIdx]}</p>
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
+            <img src={creamDefault} alt="크림 캐릭터" className="w-20 h-20 object-contain" />
+          </div>
+          <p className="text-3xl font-black text-white mt-1">{participants[winnerIdx]}</p>
           <p className="text-white font-semibold">당첨!</p>
           <p className="text-blue-200 text-sm">룰렛 결과로 선정되었어요</p>
         </div>
-        <div className="flex flex-col items-center gap-3 mt-2">
+        <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <div className="w-24 h-24 bg-gray-200 rounded-xl" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-32 h-32 object-contain" />
         </div>
         <button
-          onClick={() => navigate('/final')}
+          onClick={() => { setLoser('', participants[winnerIdx]); navigate('/final'); }}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto"
         >
           미션 확인하기
@@ -182,9 +188,6 @@ export default function RoulettePage() {
                     ? 'bg-blue-50 border-blue-300'
                     : 'bg-white border-gray-200'}`}
               >
-                <div className={`w-6 h-6 rounded-full flex-shrink-0
-                  ${!isSpinning && winnerIdx === i ? 'bg-blue-400' : 'bg-gray-200'}`}
-                />
                 <span className={`text-sm font-medium truncate
                   ${!isSpinning && winnerIdx === i ? 'text-blue-600' : 'text-gray-700'}`}>
                   {name}
