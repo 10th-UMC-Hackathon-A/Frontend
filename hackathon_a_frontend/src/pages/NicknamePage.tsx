@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { useRoomStore } from '../store/roomStore';
 import { useUserStore } from '../store/userStore';
@@ -79,8 +80,20 @@ export default function NicknamePage() {
       saveNickname(nickname.trim());
 
       navigate('/vote');
-    } catch {
-      setError('입장에 실패했습니다. 다시 시도해주세요.');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const code = err.response?.data?.code as string | undefined;
+        const status = err.response?.status;
+        if (status === 409 || code?.includes('DUPLICATE') || code?.includes('EXIST')) {
+          setError('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.');
+        } else if (status === 404) {
+          setError('방을 찾을 수 없습니다. QR 코드를 다시 확인해주세요.');
+        } else {
+          setError('입장에 실패했습니다. 다시 시도해주세요.');
+        }
+      } else {
+        setError('입장에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +167,9 @@ export default function NicknamePage() {
             className="w-4 h-4 accent-blue-500"
           />
           <span className="text-sm text-gray-500">
-            이용 약관 및 개인 정보 처리 방침에 동의합니다.
+            <Link to="/terms" className="underline text-blue-500" onClick={(e) => e.stopPropagation()}>
+              이용 약관 및 개인정보 처리 방침
+            </Link>에 동의합니다.
           </span>
         </label>
       </section>

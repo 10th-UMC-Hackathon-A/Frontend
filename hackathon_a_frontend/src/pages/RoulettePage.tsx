@@ -2,26 +2,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { calculateRouletteRotation, getRandomSpinDuration } from '../utils/roulette';
+import { useRoomStore } from '../store/roomStore';
 
 const SECTOR_COLORS = [
   '#DBEAFE', '#93C5FD', '#60A5FA', '#FEE2E2',
   '#FECACA', '#FDE68A', '#BBF7D0', '#DFDBFE',
 ];
 
-// TODO: useRoomStore로 교체
-const DUMMY_PARTICIPANTS = [
-  '도로로', '기로로', '케로로', '타마마',
-  '쿠루루', '한로로', '크롱롱', '도로로2',
-];
+const DUMMY_NAMES = ['도로로', '기로로', '케로로', '타마마', '쿠루루', '한로로', '크롱롱', '도로로2'];
 
-interface Props {
-  participantCount?: number;
-}
-
-export default function RoulettePage({ participantCount = 7 }: Props) {
-  const count = Math.min(participantCount, 8);
+export default function RoulettePage() {
   const navigate = useNavigate();
-  const participants = DUMMY_PARTICIPANTS.slice(0, count);
+  const { participants: storeParticipants } = useRoomStore();
+
+  const rawNames =
+    storeParticipants.length >= 2
+      ? storeParticipants.map((p) => p.nickname)
+      : DUMMY_NAMES;
+  const count = Math.min(rawNames.length, 8);
+  const participants = rawNames.slice(0, count);
 
   const [rotation, setRotation] = useState(0);
   const [spinDuration, setSpinDuration] = useState(3000);
@@ -32,6 +31,7 @@ export default function RoulettePage({ participantCount = 7 }: Props) {
   const handleSpin = () => {
     if (isSpinning) return;
 
+    // eslint-disable-next-line react-hooks/purity
     const selectedIdx = Math.floor(Math.random() * count);
     const duration = getRandomSpinDuration();
     const targetRotation = rotation + calculateRouletteRotation(selectedIdx, count);
@@ -73,7 +73,6 @@ export default function RoulettePage({ participantCount = 7 }: Props) {
     const textR = R * 0.63;
     const tx = CX + textR * Math.cos(toRad(angle));
     const ty = CY + textR * Math.sin(toRad(angle));
-    // 하단 섹터는 텍스트 뒤집기
     const base = angle + 90;
     const textRotation = angle > 0 && angle < 180 ? base + 180 : base;
     return `translate(${tx}, ${ty}) rotate(${textRotation})`;
