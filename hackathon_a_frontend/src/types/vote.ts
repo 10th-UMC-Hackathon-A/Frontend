@@ -10,7 +10,7 @@ export interface SubmitVoteResponse {
   result: VoteResultItem[];
 }
 
-export interface VoteMemberItem {
+export interface VoteStatusWithAliasResDto {
   label: string;
   participateList: string[];
 }
@@ -19,5 +19,17 @@ export interface GetVoteMembersResponse {
   timestamp: string;
   code: string;
   message: string;
-  result: VoteMemberItem[];
+  result: VoteStatusWithAliasResDto[];
+}
+
+export interface VoteTypeResDto {
+  voteTypeId: number;
+  label: string;
+}
+
+export interface GetVoteTypesResponse {
+  timestamp: string;
+  code: string;
+  message: string;
+  result: VoteTypeResDto[];
 }

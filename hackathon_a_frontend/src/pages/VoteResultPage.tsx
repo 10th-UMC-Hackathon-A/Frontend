@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
 import { useGameStore } from '../store/gameStore';
+import { useRoomStore } from '../store/roomStore';
+import { penaltyApi } from '../api/penaltyApi';
 import creamDefault from '../assets/Cream/Default.png';
 import creamCold from '../assets/Cream/Cold.png';
 import creamHot from '../assets/Cream/Hot.png';
@@ -26,7 +28,9 @@ function selectGameByCount(voterCount: number): MiniGameMode {
 export default function VoteResultPage() {
   const navigate = useNavigate();
   const { voteResults } = useVoteStore();
-  const { setMiniGameMode, setWinnerVoteLabel } = useGameStore();
+  const { setMiniGameMode, setWinnerVoteLabel, setLoser } = useGameStore();
+  const { roomId: storeRoomId } = useRoomStore();
+  const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || 0);
 
   const total = voteResults.reduce((sum, r) => sum + r.count, 0);
   const maxCount = total > 0 ? Math.max(...voteResults.map((r) => r.count)) : 0;
@@ -40,16 +44,21 @@ export default function VoteResultPage() {
     voteResults.length > 0
       ? voteResults
       : [
-          { label: '추워요!', count: 0 },
-          { label: '더워요!', count: 0 },
+          { label: '추워요', count: 0 },
+          { label: '더워요', count: 0 },
         ];
 
   const selectedModeRef = useRef<MiniGameMode | null>(null);
   const [countdown, setCountdown] = useState(COUNTDOWN_SEC);
 
-  // 페이지 진입 시 게임 모드 미리 결정
   useEffect(() => {
     selectedModeRef.current = selectGameByCount(total);
+
+    if (!isTie && winner && roomId) {
+      penaltyApi.drawPenaltyUser(roomId).then((res) => {
+        setLoser('', res.result.nickName);
+      }).catch(() => {});
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -79,6 +88,12 @@ export default function VoteResultPage() {
     navigate(`/${mode}`);
   };
 
+  const getCreamImage = () => {
+    if (winner?.label === '추워요') return creamCold;
+    if (winner?.label === '더워요') return creamHot;
+    return creamDefault;
+  };
+
   return (
     <main className="flex flex-col flex-1 gap-5">
       <div className="flex justify-center">
@@ -92,11 +107,7 @@ export default function VoteResultPage() {
       </section>
 
       <div className="flex justify-center">
-        <img
-          src={winner?.label === '추워요!' ? creamCold : winner?.label === '더워요!' ? creamHot : creamDefault}
-          alt="크림 캐릭터"
-          className="w-36 h-36 object-contain"
-        />
+        <img src={getCreamImage()} alt="크림 캐릭터" className="w-36 h-36 object-contain" />
       </div>
 
       {winner ? (
@@ -131,7 +142,7 @@ export default function VoteResultPage() {
               </div>
               <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요!' ? 'bg-blue-500' : 'bg-red-400'}`}
+                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요' ? 'bg-blue-500' : 'bg-red-400'}`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>
