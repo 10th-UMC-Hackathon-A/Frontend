@@ -106,8 +106,8 @@ export default function VoteProgressPage() {
         })}
       </section>
 
-      <div className="flex justify-center mt-auto">
-        <img src={creamThinking} alt="크림 캐릭터" className="w-32 h-32 object-contain" />
+      <div className="flex justify-center mt-auto -translate-y-10">
+        <img src={creamThinking} alt="크림 캐릭터" className="w-62 h-62 object-contain" />
       </div>
     </main>
   );

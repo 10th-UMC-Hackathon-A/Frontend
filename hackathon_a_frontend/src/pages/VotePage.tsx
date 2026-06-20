@@ -65,7 +65,7 @@ export default function VotePage() {
     <img
       src={selected === 'cold' ? creamCold : selected === 'hot' ? creamHot : creamDefault}
       alt="크림 캐릭터"
-      className="w-36 h-36 object-contain"
+      className="w-48 h-48 object-contain"
     />
 
     {/* 투표 선택지 */}
@@ -102,6 +102,12 @@ export default function VotePage() {
       </p>
     )}
   </section>
+
+      {/* 안내 문구 */}
+      <p className="flex items-center gap-1 text-xs text-gray-400 mt-2">
+        <span>ⓘ</span>
+        <span>한 번 투표하면 변경할 수 없어요</span>
+      </p>
 
       {/* 투표하기 버튼 */}
       <button

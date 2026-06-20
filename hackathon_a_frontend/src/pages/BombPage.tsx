@@ -52,12 +52,10 @@ export default function BombPage() {
 
         <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
 
-        <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
-          <span className="absolute top-4 right-4 text-white font-bold text-lg">
-            {pool.length}
-          </span>
-          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
-            <img src={creamDefault} alt="크림 캐릭터" className="w-64 h-64 object-contain" />
+        <div className="relative bg-blue-500 rounded-2xl p-8 flex flex-col items-center gap-3">
+
+          <div className="w-36 h-36 bg-white rounded-full flex items-center justify-center overflow-hidden">
+            <img src={creamDefault} alt="크림 캐릭터" className="w-36 h-36 object-contain" />
           </div>
           <p className="text-3xl font-black text-white mt-1">{loserNickname}</p>
           <p className="text-white font-semibold">당첨!</p>

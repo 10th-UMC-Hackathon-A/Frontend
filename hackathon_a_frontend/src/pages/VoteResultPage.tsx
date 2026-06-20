@@ -95,7 +95,7 @@ export default function VoteResultPage() {
         <img
           src={winner?.label === '추워요!' ? creamCold : winner?.label === '더워요!' ? creamHot : creamDefault}
           alt="크림 캐릭터"
-          className="w-36 h-36 object-contain"
+          className="w-64 h-64 object-contain"
         />
       </div>
 
