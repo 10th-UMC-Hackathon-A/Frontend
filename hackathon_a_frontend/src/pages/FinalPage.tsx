@@ -3,28 +3,43 @@ import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
 import { useUserStore } from '../store/userStore';
 import { useVoteStore } from '../store/voteStore';
+import { useRoomStore } from '../store/roomStore';
+import { penaltyApi } from '../api/penaltyApi';
 
 export default function FinalPage() {
   const navigate = useNavigate();
-  const { loserNickname, punishment, punishmentSeconds, reset: resetGame } = useGameStore();
+  const { loserNickname, punishment, punishmentSeconds, reset: resetGame, setPunishment } = useGameStore();
   const { nickname } = useUserStore();
   const { reset: resetVote } = useVoteStore();
+  const { roomId: storeRoomId } = useRoomStore();
+  const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || 0);
 
   const isSelf = !!loserNickname && loserNickname === nickname;
   const displayNickname = loserNickname ?? '알 수 없음';
-  const displayMission = punishment ?? '미션 정보 없음';
+  const displayMission = punishment ?? '미션 불러오는 중...';
 
   const [timeLeft, setTimeLeft] = useState(() => punishmentSeconds);
   const isEnded = timeLeft === 0;
+
+  const FALLBACK_MISSIONS = ['에어컨 1도 올리기', '팔굽혀펴기 10개', '노래 한 소절 부르기', '스쿼트 10개', '앞에 나와서 춤추기'];
+
+  // 벌칙 추첨 API 호출
+  useEffect(() => {
+    if (!roomId) return;
+    penaltyApi.drawPenalty(roomId)
+      .then((res) => setPunishment(res.result.label))
+      .catch(() => {
+        const fallback = FALLBACK_MISSIONS[Math.floor(Math.random() * FALLBACK_MISSIONS.length)];
+        setPunishment(fallback);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isEnded) return;
     const timer = setInterval(() => {
       setTimeLeft((t) => {
-        if (t <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
+        if (t <= 1) { clearInterval(timer); return 0; }
         return t - 1;
       });
     }, 1000);
@@ -37,14 +52,19 @@ export default function FinalPage() {
     return `${m} : ${String(s).padStart(2, '0')}`;
   };
 
-  const goToVote = () => {
+  const goToVote = async () => {
+    try {
+      if (roomId) await penaltyApi.missionComplete(roomId);
+    } catch {
+      // 실패해도 다음 라운드로 이동
+    }
     localStorage.removeItem('myVote');
+    localStorage.setItem('roundStartTime', String(Date.now()));
     resetGame();
     resetVote();
     navigate('/vote', { replace: true });
   };
 
-  // 타이머 종료 후 자동 이동
   useEffect(() => {
     if (!isEnded) return;
     goToVote();
