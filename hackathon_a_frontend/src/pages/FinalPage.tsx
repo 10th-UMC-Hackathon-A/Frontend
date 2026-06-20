@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
 import { useUserStore } from '../store/userStore';
+import { useVoteStore } from '../store/voteStore';
 
 export default function FinalPage() {
   const navigate = useNavigate();
   const { loserNickname, punishment, punishmentSeconds, reset: resetGame } = useGameStore();
   const { nickname } = useUserStore();
+  const { reset: resetVote } = useVoteStore();
 
   const isSelf = !!loserNickname && loserNickname === nickname;
   const displayNickname = loserNickname ?? '알 수 없음';
@@ -35,17 +37,19 @@ export default function FinalPage() {
     return `${m} : ${String(s).padStart(2, '0')}`;
   };
 
+  const goToVote = () => {
+    localStorage.removeItem('myVote');
+    resetGame();
+    resetVote();
+    navigate('/vote', { replace: true });
+  };
+
   // 타이머 종료 후 자동 이동
   useEffect(() => {
     if (!isEnded) return;
-    resetGame();
-    navigate('/vote', { replace: true });
-  }, [isEnded, resetGame, navigate]);
-
-  const handleComplete = () => {
-    resetGame();
-    navigate('/vote', { replace: true });
-  };
+    goToVote();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEnded]);
 
   return (
     <div className="flex flex-col flex-1 justify-between gap-3">
@@ -84,7 +88,7 @@ export default function FinalPage() {
       </div>
 
       <button
-        onClick={handleComplete}
+        onClick={goToVote}
         className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition"
       >
         미션 완료

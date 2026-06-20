@@ -69,7 +69,7 @@ export default function NicknamePage() {
 
     try {
       const result = await roomApi.joinParticipant(nickname.trim(), roomId);
-      const accessToken = result.result;
+      const accessToken = result.result.accessToken;
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('roomId', String(roomId));

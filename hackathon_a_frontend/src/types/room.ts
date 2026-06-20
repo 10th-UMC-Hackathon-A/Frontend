@@ -24,12 +24,19 @@ export interface DeleteRoomResponse {
   result: null;
 }
 
-// JoinParticipant 응답 필드명은 백엔드 확인 필요 (Swagger에 BaseResponseString으로만 표시)
+export interface ParticipantResDto {
+  userId: number;
+  roomId: number;
+  nickName: string;
+  uid: string;
+  accessToken: string;
+}
+
 export interface JoinParticipantResponse {
   timestamp: string;
   code: string;
   message: string;
-  result: string;
+  result: ParticipantResDto;
 }
 
 export interface Participant {
