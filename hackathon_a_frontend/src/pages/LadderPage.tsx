@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
 import { useRoomStore } from '../store/roomStore';
+import { useGameStore } from '../store/gameStore';
+import creamDefault from '../assets/Cream/Default.png';
+import creamCongrats from '../assets/Cream/Congrats.png';
 
 const ROW_COUNT = 6;
 const DUMMY_NAMES = ['참가자1', '참가자2', '참가자3', '참가자4'];
@@ -10,6 +13,7 @@ const DUMMY_NAMES = ['참가자1', '참가자2', '참가자3', '참가자4'];
 export default function LadderPage() {
   const navigate = useNavigate();
   const { participants: storeParticipants } = useRoomStore();
+  const { setLoser } = useGameStore();
 
   const rawNames =
     storeParticipants.length >= 2
@@ -195,17 +199,19 @@ export default function LadderPage() {
         <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
         <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
           <span className="absolute top-4 right-4 text-white font-bold text-lg">{count}</span>
-          <div className="w-20 h-20 bg-gray-200 rounded-full" />
-          <p className="text-2xl font-black text-white mt-1">{winnerName}</p>
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
+            <img src={creamDefault} alt="크림 캐릭터" className="w-20 h-20 object-contain" />
+          </div>
+          <p className="text-3xl font-black text-white mt-1">{winnerName}</p>
           <p className="text-white font-semibold">당첨!</p>
           <p className="text-blue-200 text-sm">사다리 결과로 선정되었어요</p>
         </div>
-        <div className="flex flex-col items-center gap-3 mt-2">
+        <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <div className="w-24 h-24 bg-gray-200 rounded-xl" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-32 h-32 object-contain" />
         </div>
         <button
-          onClick={() => navigate('/final')}
+          onClick={() => { setLoser('', winnerName); navigate('/final'); }}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
           미션 확인하기
@@ -249,11 +255,8 @@ export default function LadderPage() {
           <div className="flex justify-between px-2">
             {ladder.participants.map((p, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
-                <div
-                  className={`w-10 h-10 rounded-full
-                  ${animDone && winnerIdx === i ? 'bg-blue-500' : 'bg-gray-300'}`}
-                />
-                <span className="text-xs text-gray-500 truncate max-w-12 text-center">{p}</span>
+                <span className={`text-xs truncate max-w-12 text-center font-medium
+                  ${animDone && winnerIdx === i ? 'text-blue-500' : 'text-gray-500'}`}>{p}</span>
               </div>
             ))}
           </div>

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
+import lotsBox from '../assets/Lots Box.png';
+import creamDefault from '../assets/Cream/Default.png';
+import creamCongrats from '../assets/Cream/Congrats.png';
 
 const DUMMY_PARTICIPANTS = [
   { id: 'd1', nickname: '김철수' },
@@ -34,8 +37,8 @@ export default function BombPage() {
       setLoser(loser.id, loser.nickname);
       setPunishment(mission);
       setIsSpinning(false);
-      setTimeout(() => setIsResult(true), 800);
-    }, 2000);
+      setTimeout(() => setIsResult(true), 400);
+    }, 1500);
   };
 
   if (isResult) {
@@ -53,15 +56,17 @@ export default function BombPage() {
           <span className="absolute top-4 right-4 text-white font-bold text-lg">
             {pool.length}
           </span>
-          <div className="w-20 h-20 bg-gray-200 rounded-full" />
-          <p className="text-2xl font-black text-white mt-1">{loserNickname}</p>
+          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
+            <img src={creamDefault} alt="크림 캐릭터" className="w-20 h-20 object-contain" />
+          </div>
+          <p className="text-3xl font-black text-white mt-1">{loserNickname}</p>
           <p className="text-white font-semibold">당첨!</p>
           <p className="text-blue-200 text-sm">제비뽑기 결과로 선정되었어요</p>
         </div>
 
-        <div className="flex flex-col items-center gap-3 mt-2">
+        <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <div className="w-24 h-24 bg-gray-200 rounded-xl" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-32 h-32 object-contain" />
         </div>
 
         <button
@@ -81,21 +86,14 @@ export default function BombPage() {
           제비 뽑기
         </div>
         <p className="text-lg font-bold text-gray-900">제비를 뽑아 벌칙자를 정해요</p>
-        <p className="text-sm text-gray-400">{pool.length}명 중 한 명이 선택됩니다</p>
+      </div>
 
-        <ul className="w-full flex flex-col gap-2 list-none p-0 mt-4">
-          {pool.map((p) => (
-            <li
-              key={p.id}
-              className={`flex items-center gap-3 bg-gray-100 rounded-xl px-4 py-3 transition-all ${
-                isSpinning ? 'animate-pulse' : ''
-              }`}
-            >
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex-shrink-0" />
-              <span className="text-sm font-medium text-gray-700">{p.nickname}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="flex justify-center items-center flex-1">
+        <img
+          src={lotsBox}
+          alt="제비뽑기 통"
+          className={`w-64 h-64 object-contain transition-transform ${isSpinning ? 'animate-bounce' : ''}`}
+        />
       </div>
 
       <button

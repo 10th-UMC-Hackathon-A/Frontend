@@ -65,9 +65,8 @@ export default function FinalPage() {
       </div>
 
       <div className="flex items-center gap-3 bg-gray-100 rounded-2xl px-4 py-5">
-        <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" />
         <div>
-          <p className="text-base font-bold text-gray-900">
+          <p className="text-xl font-bold text-gray-900">
             {isSelf ? displayNickname : `${displayNickname} 님이 미션 수행 중`}
           </p>
           <p className="text-xs text-gray-400">이번 라운드 벌칙자</p>

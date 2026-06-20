@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
 import { useGameStore } from '../store/gameStore';
+import creamDefault from '../assets/Cream/Default.png';
+import creamCold from '../assets/Cream/Cold.png';
+import creamHot from '../assets/Cream/Hot.png';
 
 type MiniGameMode = 'bomb' | 'roulette' | 'ladder';
 
@@ -89,7 +92,11 @@ export default function VoteResultPage() {
       </section>
 
       <div className="flex justify-center">
-        <div className="w-28 h-28 bg-gray-200 rounded-xl" aria-hidden="true" />
+        <img
+          src={winner?.label === '추워요!' ? creamCold : winner?.label === '더워요!' ? creamHot : creamDefault}
+          alt="크림 캐릭터"
+          className="w-36 h-36 object-contain"
+        />
       </div>
 
       {winner ? (
@@ -114,7 +121,7 @@ export default function VoteResultPage() {
           {displayResults.map((r) => `${r.label} ${r.count}`).join(' / ')}
         </p>
 
-        {displayResults.map((result, idx) => {
+        {displayResults.map((result) => {
           const percentage = total > 0 ? Math.round((result.count / total) * 100) : 0;
           return (
             <div key={result.label} className="flex flex-col gap-1.5 mb-2">
@@ -124,7 +131,7 @@ export default function VoteResultPage() {
               </div>
               <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${idx === 0 ? 'bg-blue-500' : 'bg-red-400'}`}
+                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요!' ? 'bg-blue-500' : 'bg-red-400'}`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useVote } from '../hooks/useVote';
 import { useVoteStore } from '../store/voteStore';
 import { useRoomStore } from '../store/roomStore';
+import creamThinking from '../assets/Cream/Thinking.png';
 
 const question = 'Q. 지금 강의실 온도 어때요?';
 
@@ -84,9 +85,10 @@ export default function VoteProgressPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        {displayResults.map((result, idx) => {
+        {displayResults.map((result) => {
           const percentage = total > 0 ? Math.round((result.count / total) * 100) : 0;
           return (
+
             <div key={result.label} className="flex flex-col gap-1.5">
               <div className="flex justify-between text-sm font-medium text-gray-700">
                 <span>{result.label}</span>
@@ -94,7 +96,7 @@ export default function VoteProgressPage() {
               </div>
               <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${idx === 0 ? 'bg-blue-400' : 'bg-red-400'}`}
+                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요!' ? 'bg-blue-400' : 'bg-red-400'}`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>
@@ -105,7 +107,7 @@ export default function VoteProgressPage() {
       </section>
 
       <div className="flex justify-center mt-auto">
-        <div className="w-28 h-28 bg-gray-200 rounded-xl" aria-hidden="true" />
+        <img src={creamThinking} alt="크림 캐릭터" className="w-32 h-32 object-contain" />
       </div>
     </main>
   );

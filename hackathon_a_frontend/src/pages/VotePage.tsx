@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVote } from '../hooks/useVote';
 import { useRoomStore } from '../store/roomStore';
+import creamDefault from '../assets/Cream/Default.png';
+import creamCold from '../assets/Cream/Cold.png';
+import creamHot from '../assets/Cream/Hot.png';
 
 const question = 'Q. 지금 강의실 온도는 어때요?';
 const participantCount = 0;
@@ -59,7 +62,11 @@ export default function VotePage() {
     </header>
 
     {/* 캐릭터 이미지 */}
-    <div className="w-28 h-28 bg-gray-200 rounded-xl" aria-hidden="true" />
+    <img
+      src={selected === 'cold' ? creamCold : selected === 'hot' ? creamHot : creamDefault}
+      alt="크림 캐릭터"
+      className="w-36 h-36 object-contain"
+    />
 
     {/* 투표 선택지 */}
     <ul className="flex flex-col gap-3 w-full list-none p-0">
@@ -72,13 +79,15 @@ export default function VotePage() {
               onClick={() => setSelected(option.id)}
               className={[
                 'w-full py-8 px-5 rounded-2xl text-center transition-all cursor-pointer',
-                isSelected
+                isSelected && option.id === 'hot'
+                  ? 'bg-red-50 text-red-600 ring-2 ring-red-300'
+                  : isSelected
                   ? 'bg-blue-100 text-blue-600 ring-2 ring-blue-400'
                   : 'bg-gray-100 text-gray-800 hover:bg-gray-200',
               ].join(' ')}
             >
               <p className="text-lg font-bold">{option.label}</p>
-              <p className={`text-sm mt-1 ${isSelected ? 'text-blue-400' : 'text-gray-400'}`}>
+              <p className={`text-sm mt-1 ${isSelected && option.id === 'hot' ? 'text-red-300' : isSelected ? 'text-blue-400' : 'text-gray-400'}`}>
                 {option.description}
               </p>
             </button>
