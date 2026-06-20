@@ -200,7 +200,7 @@ export default function LadderPage() {
         <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-2">
           <span className="absolute top-4 right-4 text-white font-bold text-lg">{count}</span>
           <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
-            <img src={creamDefault} alt="크림 캐릭터" className="w-20 h-20 object-contain" />
+            <img src={creamDefault} alt="크림 캐릭터" className="w-32 h-32 object-contain" />
           </div>
           <p className="text-3xl font-black text-white mt-1">{winnerName}</p>
           <p className="text-white font-semibold">당첨!</p>
@@ -208,7 +208,7 @@ export default function LadderPage() {
         </div>
         <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <img src={creamCongrats} alt="축하 캐릭터" className="w-32 h-32 object-contain" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-44 h-44 object-contain" />
         </div>
         <button
           onClick={() => { setLoser('', winnerName); navigate('/final'); }}

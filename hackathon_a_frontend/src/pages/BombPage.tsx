@@ -57,7 +57,7 @@ export default function BombPage() {
             {pool.length}
           </span>
           <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center overflow-hidden">
-            <img src={creamDefault} alt="크림 캐릭터" className="w-20 h-20 object-contain" />
+            <img src={creamDefault} alt="크림 캐릭터" className="w-64 h-64 object-contain" />
           </div>
           <p className="text-3xl font-black text-white mt-1">{loserNickname}</p>
           <p className="text-white font-semibold">당첨!</p>
@@ -66,7 +66,7 @@ export default function BombPage() {
 
         <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <img src={creamCongrats} alt="축하 캐릭터" className="w-32 h-32 object-contain" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-52 h-52 object-contain" />
         </div>
 
         <button
