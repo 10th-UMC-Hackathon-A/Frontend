@@ -52,7 +52,13 @@ export const dummyRoomApi = {
       timestamp: new Date().toISOString(),
       code: '200',
       message: 'OK',
-      result: `dummy-token-${roomId}-${nickName}-${Date.now()}`,
+      result: {
+        userId: Date.now(),
+        roomId,
+        nickName,
+        uid: `dummy-uid-${roomId}-${nickName}`,
+        accessToken: `dummy-token-${roomId}-${nickName}-${Date.now()}`,
+      },
     };
   },
 };

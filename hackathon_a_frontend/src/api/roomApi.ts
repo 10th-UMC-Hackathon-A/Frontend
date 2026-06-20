@@ -42,7 +42,13 @@ export const roomApi = {
     // 테스트용 더미
     if (USE_DUMMY) return dummyRoomApi.joinParticipant(nickName, roomId);
 
-    const response = await axiosInstance.post<JoinParticipantResponse>('/rooms/participants', { nickName, roomId });
+    let uid = localStorage.getItem('uid');
+    if (!uid) {
+      uid = crypto.randomUUID();
+      localStorage.setItem('uid', uid);
+    }
+
+    const response = await axiosInstance.post<JoinParticipantResponse>('/rooms/participants', { nickName, uid, roomId });
     return response.data;
   },
 
