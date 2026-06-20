@@ -35,6 +35,13 @@ export default function FinalPage() {
     return `${m} : ${String(s).padStart(2, '0')}`;
   };
 
+  // 타이머 종료 후 자동 이동
+  useEffect(() => {
+    if (!isEnded) return;
+    resetGame();
+    navigate('/vote', { replace: true });
+  }, [isEnded, resetGame, navigate]);
+
   const handleComplete = () => {
     resetGame();
     navigate('/vote', { replace: true });
@@ -76,22 +83,12 @@ export default function FinalPage() {
         </div>
       </div>
 
-      {isSelf ? (
-        <button
-          onClick={handleComplete}
-          disabled={!isEnded}
-          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition cursor-pointer hover:bg-blue-400"
-        >
-          미션 완료
-        </button>
-      ) : (
-        <button
-          disabled
-          className="w-full bg-gray-100 text-gray-400 py-4 rounded-2xl text-base font-semibold cursor-not-allowed"
-        >
-          다음 라운드 대기 중...
-        </button>
-      )}
+      <button
+        onClick={handleComplete}
+        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition"
+      >
+        미션 완료
+      </button>
     </div>
   );
 }

@@ -16,8 +16,11 @@ export interface PathPoint {
   y: number;
 }
 
-export function generateLadder(participantCount: number, rowCount = 6): LadderData {
-  const participants = Array.from({ length: participantCount }, (_, i) => `참가자 ${i + 1}`);
+export function generateLadder(participantCount: number, rowCount = 6, names?: string[]): LadderData {
+  const participants = Array.from(
+    { length: participantCount },
+    (_, i) => names?.[i] ?? `참가자 ${i + 1}`
+  );
 
   const winnerIdx = Math.floor(Math.random() * participantCount);
   const results = Array.from({ length: participantCount }, (_, i) =>

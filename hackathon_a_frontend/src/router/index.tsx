@@ -8,6 +8,9 @@ import BombPage from '../pages/BombPage';
 import RoulettePage from '../pages/RoulettePage';
 import LadderPage from '../pages/LadderPage';
 import FinalPage from '../pages/FinalPage';
+import DrawPage from '../pages/DrawPage';
+import TermsPage from '../pages/TermsPage';
+import ErrorPage from '../pages/ErrorPage';
 
 export const router = createBrowserRouter([
   {
@@ -17,10 +20,13 @@ export const router = createBrowserRouter([
       { path: '/vote', element: <VotePage /> },
       { path: '/progress', element: <VoteProgressPage /> },
       { path: '/result', element: <VoteResultPage /> },
+      { path: '/draw', element: <DrawPage /> },
       { path: '/bomb', element: <BombPage /> },
       { path: '/roulette', element: <RoulettePage /> },
       { path: '/ladder', element: <LadderPage /> },
       { path: '/final', element: <FinalPage /> },
+      { path: '/terms', element: <TermsPage /> },
+      { path: '*', element: <ErrorPage /> },
     ],
   },
 ]);

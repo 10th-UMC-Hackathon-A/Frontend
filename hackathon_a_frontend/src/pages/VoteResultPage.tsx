@@ -1,9 +1,24 @@
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
 import { useGameStore } from '../store/gameStore';
 
+type MiniGameMode = 'bomb' | 'roulette' | 'ladder';
+
+const COUNTDOWN_SEC = 5;
 const question = 'Q. 지금 강의실 온도 어때요?';
-const MINI_GAMES = ['bomb', 'roulette', 'ladder'] as const;
+
+function selectGameByCount(voterCount: number): MiniGameMode {
+  if (voterCount <= 5) {
+    const games: MiniGameMode[] = ['bomb', 'roulette', 'ladder'];
+    return games[Math.floor(Math.random() * 3)];
+  }
+  if (voterCount <= 8) {
+    const games: MiniGameMode[] = ['bomb', 'roulette'];
+    return games[Math.floor(Math.random() * 2)];
+  }
+  return 'bomb';
+}
 
 export default function VoteResultPage() {
   const navigate = useNavigate();
@@ -11,9 +26,10 @@ export default function VoteResultPage() {
   const { setMiniGameMode, setWinnerVoteLabel } = useGameStore();
 
   const total = voteResults.reduce((sum, r) => sum + r.count, 0);
-
+  const maxCount = total > 0 ? Math.max(...voteResults.map((r) => r.count)) : 0;
+  const isTie = total > 0 && voteResults.filter((r) => r.count === maxCount).length > 1;
   const winner =
-    voteResults.length > 0
+    !isTie && voteResults.length > 0
       ? voteResults.reduce((a, b) => (a.count > b.count ? a : b))
       : null;
 
@@ -24,6 +40,41 @@ export default function VoteResultPage() {
           { label: '추워요!', count: 0 },
           { label: '더워요!', count: 0 },
         ];
+
+  const selectedModeRef = useRef<MiniGameMode | null>(null);
+  const [countdown, setCountdown] = useState(COUNTDOWN_SEC);
+
+  // 페이지 진입 시 게임 모드 미리 결정
+  useEffect(() => {
+    selectedModeRef.current = selectGameByCount(total);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isTie) {
+      navigate('/draw');
+      return;
+    }
+
+    if (countdown <= 0) {
+      const mode = selectedModeRef.current ?? 'bomb';
+      setMiniGameMode(mode);
+      if (winner) setWinnerVoteLabel(winner.label);
+      navigate(`/${mode}`);
+      return;
+    }
+
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown, isTie]);
+
+  const handleNavigate = () => {
+    const mode = selectedModeRef.current ?? 'bomb';
+    setMiniGameMode(mode);
+    if (winner) setWinnerVoteLabel(winner.label);
+    navigate(`/${mode}`);
+  };
 
   return (
     <main className="flex flex-col flex-1 gap-5">
@@ -50,11 +101,11 @@ export default function VoteResultPage() {
             이 중({winner.label})에서 벌칙자를 골라올게요
           </p>
         </section>
-      ) : (
+      ) : total === 0 ? (
         <section className="flex flex-col items-center gap-1">
           <p className="text-base font-semibold text-gray-400 text-center">투표 결과가 없습니다</p>
         </section>
-      )}
+      ) : null}
 
       <section className="flex flex-col gap-1">
         <p className="text-sm font-semibold text-blue-500">{question}</p>
@@ -83,15 +134,10 @@ export default function VoteResultPage() {
       </section>
 
       <button
-        onClick={() => {
-          const mode = MINI_GAMES[Math.floor(Math.random() * MINI_GAMES.length)];
-          setMiniGameMode(mode);
-          if (winner) setWinnerVoteLabel(winner.label);
-          navigate(`/${mode}`);
-        }}
+        onClick={handleNavigate}
         className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
       >
-        벌칙자를 찾기로 가기
+        {countdown > 0 ? `벌칙자를 찾기로 가기 (${countdown}초)` : '이동 중...'}
       </button>
     </main>
   );

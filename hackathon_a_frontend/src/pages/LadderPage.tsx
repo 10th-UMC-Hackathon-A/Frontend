@@ -2,21 +2,29 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
+import { useRoomStore } from '../store/roomStore';
 
 const ROW_COUNT = 6;
+const DUMMY_NAMES = ['참가자1', '참가자2', '참가자3', '참가자4'];
 
-interface Props {
-  participantCount?: number;
-}
-
-export default function LadderPage({ participantCount = 4 }: Props) {
-  const count = Math.min(participantCount, 5);
+export default function LadderPage() {
   const navigate = useNavigate();
+  const { participants: storeParticipants } = useRoomStore();
+
+  const rawNames =
+    storeParticipants.length >= 2
+      ? storeParticipants.map((p) => p.nickname)
+      : DUMMY_NAMES;
+  const count = Math.min(rawNames.length, 5);
+  const names = rawNames.slice(0, count);
+  const namesRef = useRef(names);
+  namesRef.current = names;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number | null>(null);
 
-  const [ladder, setLadder] = useState<LadderData>(() => generateLadder(count, ROW_COUNT));
+  const [ladder, setLadder] = useState<LadderData>(() => generateLadder(count, ROW_COUNT, names));
   const ladderRef = useRef<LadderData>(ladder);
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -126,7 +134,8 @@ export default function LadderPage({ participantCount = 4 }: Props) {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight || 240;
       }
-      const newLadder = generateLadder(count, ROW_COUNT);
+      const currentNames = namesRef.current;
+      const newLadder = generateLadder(currentNames.length, ROW_COUNT, currentNames);
       ladderRef.current = newLadder;
       setLadder(newLadder);
       setAnimDone(false);
@@ -244,7 +253,7 @@ export default function LadderPage({ participantCount = 4 }: Props) {
                   className={`w-10 h-10 rounded-full
                   ${animDone && winnerIdx === i ? 'bg-blue-500' : 'bg-gray-300'}`}
                 />
-                <span className="text-xs text-gray-500">{p}</span>
+                <span className="text-xs text-gray-500 truncate max-w-12 text-center">{p}</span>
               </div>
             ))}
           </div>
