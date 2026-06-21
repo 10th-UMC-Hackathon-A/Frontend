@@ -5,6 +5,7 @@ interface ProgressBarProps {
   label?: string;
   showPercentage?: boolean;
   className?: string;
+  barClassName?: string;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -12,6 +13,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   label,
   showPercentage = true,
   className = '',
+  barClassName = 'bg-black',
 }) => {
   const clamped = Math.min(Math.max(value, 0), 100);
 
@@ -27,7 +29,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       )}
       <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
         <div
-          className="h-full bg-black rounded-full transition-all duration-500"
+          className={`h-full rounded-full transition-all duration-500 ${barClassName}`}
           style={{ width: `${clamped}%` }}
         />
       </div>
