@@ -41,6 +41,8 @@ export default function NicknamePage() {
   );
   const [error, setError] = useState<string | null>(null);
   const [fetchedRoomName, setFetchedRoomName] = useState<string | null>(null);
+  // null=확인 전, true=방 존재, false=목록에 없음(삭제/존재하지 않는 방)
+  const [roomExists, setRoomExists] = useState<boolean | null>(null);
 
   const MAX_LENGTH = 8;
 
@@ -53,12 +55,17 @@ export default function NicknamePage() {
       .getRooms()
       .then((res) => {
         const found = res.result.find((r) => r.roomId === roomId);
+        // 목록에 없으면 삭제/존재하지 않는 방 → 입장 불가로 표시
+        setRoomExists(!!found);
         if (found) {
           setFetchedRoomName(found.roomName);
           setRoomName(found.roomName);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // 목록 조회 실패(네트워크 등)는 존재 여부를 단정하지 않음
+        setRoomExists(null);
+      });
 
     const goToVoteWith = (nickName: string, token: string, refresh = '') => {
       localStorage.setItem('accessToken', token);
@@ -163,20 +170,10 @@ export default function NicknamePage() {
             navigate('/vote', { replace: true });
             return;
           } catch {
-            // 재시도도 실패 → 투표창 상태로 분기
-            try {
-              const detail = await roomApi.getRoomDetails(roomId);
-              const closedAt = detail.result.voteClosedAt
-                ? new Date(detail.result.voteClosedAt).getTime()
-                : null;
-              if (closedAt !== null && closedAt < Date.now()) {
-                navigate('/result', { replace: true }); // 투표 종료
-              } else {
-                navigate('/progress', { replace: true }); // 투표 진행 중
-              }
-            } catch {
-              navigate('/progress', { replace: true });
-            }
+            // 재시도도 실패 = 토큰 발급 불가(라운드 전환/종료된 방).
+            // 토큰 없이 게임 화면으로 보내면 가드가 닉네임으로 되돌려 무한 반복되므로
+            // 여기서 명확히 안내하고 닉네임 화면에 머문다.
+            setError('현재 이 방은 입장할 수 없어요. 라운드가 종료되었거나 전환 중입니다. 새 방으로 다시 시도해주세요.');
             return;
           }
         } else {
@@ -196,6 +193,16 @@ export default function NicknamePage() {
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
         <p className="text-base font-medium text-gray-700">유효하지 않은 방입니다.</p>
         <p className="text-sm text-gray-400">QR 코드를 다시 스캔해주세요.</p>
+      </main>
+    );
+  }
+
+  // 방 목록에 없는 경우(삭제/존재하지 않는 방) → 입장 불가 안내
+  if (roomExists === false) {
+    return (
+      <main className="flex flex-col flex-1 items-center justify-center gap-4">
+        <p className="text-base font-medium text-gray-700">삭제되었거나 존재하지 않는 방입니다.</p>
+        <p className="text-sm text-gray-400">방 #{roomId} · 새 방으로 다시 시도해주세요.</p>
       </main>
     );
   }
