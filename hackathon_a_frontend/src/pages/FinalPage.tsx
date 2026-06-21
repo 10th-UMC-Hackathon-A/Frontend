@@ -14,7 +14,7 @@ const ROUND_POLL_INTERVAL_MS = 3_000;
 
 export default function FinalPage() {
   const navigate = useNavigate();
-  const { loserNickname, punishment, punishmentSeconds, reset: resetGame, setPunishment } = useGameStore();
+  const { loserNickname, punishment, punishmentSeconds, winnerVoteLabel, reset: resetGame, setPunishment } = useGameStore();
   const { nickname } = useUserStore();
   const { reset: resetVote } = useVoteStore();
   const { roomId: storeRoomId } = useRoomStore();
@@ -22,8 +22,11 @@ export default function FinalPage() {
 
   const isSelf = !!loserNickname && loserNickname === nickname;
   const displayNickname = loserNickname ?? '알 수 없음';
+  // 백엔드는 동작 부분만 내려주므로("손하트를 하며") 프론트가 온도 조절 문구를 붙인다.
+  // 더워요가 이기면 에어컨 1도 낮추기, 추워요가 이기면 1도 올리기.
+  const acAction = winnerVoteLabel === '추워요' ? '에어컨 1도 올리기' : '에어컨 1도 낮추기';
   // 빈 문자열/공백도 "없음"으로 취급해 미션 텍스트가 비어 보이지 않게 한다.
-  const displayMission = punishment?.trim() ? punishment : '미션 불러오는 중...';
+  const displayMission = punishment?.trim() ? `${punishment} ${acAction}` : '미션 불러오는 중...';
 
   const totalSeconds = punishmentSeconds || 1;
   const [timeLeft, setTimeLeft] = useState(() => punishmentSeconds);

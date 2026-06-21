@@ -9,13 +9,16 @@ import creamThinking from '../assets/images/Icon/Cream/Thinking.png';
 
 const question = 'Q. 지금 강의실 온도 어때요?';
 
+// 투표 시간 2분. 서버 voteClosedAt 조회 실패 시에만 쓰는 fallback.
+const VOTE_DURATION_SEC = 120;
+
 function getFallbackSeconds(): number {
   const roundStart = Number(localStorage.getItem('roundStartTime'));
   if (roundStart) {
     const elapsed = Math.floor((Date.now() - roundStart) / 1000);
-    return Math.max(0, 60 - elapsed);
+    return Math.max(0, VOTE_DURATION_SEC - elapsed);
   }
-  return 60 - new Date().getSeconds();
+  return VOTE_DURATION_SEC;
 }
 
 export default function VoteProgressPage() {
