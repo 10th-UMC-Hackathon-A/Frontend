@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button } from '../components/common/Button';
 import axios from 'axios';
 import logo from '../assets/Logo.png';
 import iconCheck from '../assets/images/Icon/Check.png';
@@ -286,13 +287,9 @@ export default function NicknamePage() {
         </label>
       </section>
 
-      <button
-        onClick={handleEnter}
-        disabled={!isValid || isLoading}
-        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed hover:bg-blue-400 active:bg-blue-600 transition shrink-0"
-      >
+      <Button variant="blue" fullWidth disabled={!isValid || isLoading} onClick={handleEnter} className="shrink-0">
         {isLoading ? '입장 중...' : '입장하기'}
-      </button>
+      </Button>
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
 import { useUserStore } from '../store/userStore';
@@ -148,12 +149,9 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <button
-        onClick={goToVote}
-        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition"
-      >
+      <Button variant="blue" fullWidth onClick={goToVote}>
         미션 완료
-      </button>
+      </Button>
     </div>
   );
 }

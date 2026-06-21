@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
 import creamDefault from '../assets/images/Icon/Cream/Default.png';
@@ -90,12 +91,9 @@ export default function DrawPage() {
         })}
       </section>
 
-      <button
-        onClick={handleReVote}
-        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
-      >
+      <Button variant="blue" fullWidth onClick={handleReVote} className="mt-auto">
         다시 투표하기
-      </button>
+      </Button>
     </main>
   );
 }

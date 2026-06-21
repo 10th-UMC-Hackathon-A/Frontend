@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
@@ -108,12 +109,9 @@ export default function BombPage() {
           />
         </div>
 
-        <button
-          onClick={() => navigate('/final')}
-          className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
-        >
+        <Button variant="blue" fullWidth onClick={() => navigate('/final')} className="mt-auto">
           미션 확인하기
-        </button>
+        </Button>
       </div>
     );
   }
@@ -135,13 +133,9 @@ export default function BombPage() {
         />
       </div>
 
-      <button
-        onClick={handleDraw}
-        disabled={isSpinning}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
-      >
+      <Button variant="blue" fullWidth disabled={isSpinning} onClick={handleDraw} className="mt-4">
         {isSpinning ? '뽑는 중...' : `제비 뽑기 (${startCountdown}초)`}
-      </button>
+      </Button>
     </div>
   );
 }

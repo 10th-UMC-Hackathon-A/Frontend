@@ -17,6 +17,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   secondary: 'bg-white text-black border border-gray-300 hover:bg-gray-50 disabled:text-gray-300',
   danger: 'bg-red-500 text-white hover:bg-red-600 disabled:bg-red-200',
   ghost: 'bg-transparent text-black hover:bg-gray-100 disabled:text-gray-300',
+  blue: 'bg-blue-500 text-white hover:bg-blue-400 active:bg-blue-600 disabled:bg-gray-200 disabled:text-gray-400',
 };
 
 const sizeClasses: Record<Size, string> = {
