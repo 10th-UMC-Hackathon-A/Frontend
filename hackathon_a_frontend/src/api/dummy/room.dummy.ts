@@ -3,6 +3,8 @@ import type {
   GetRoomsResponse,
   DeleteRoomResponse,
   JoinParticipantResponse,
+  GetRoomDetailsResponse,
+  VerifyAccessResponse,
   RoomItem,
 } from '../../types/room';
 
@@ -58,6 +60,34 @@ export const dummyRoomApi = {
         nickName,
         uid: `dummy-uid-${roomId}-${nickName}`,
         accessToken: `dummy-token-${roomId}-${nickName}-${Date.now()}`,
+        refreshToken: `dummy-refresh-${roomId}-${nickName}-${Date.now()}`,
+      },
+    };
+  },
+
+  verifyAccess: async (_roomId: number): Promise<VerifyAccessResponse> => {
+    await delay();
+    return {
+      timestamp: new Date().toISOString(), code: '200', message: 'OK',
+      result: { nickName: '테스트유저' },
+    };
+  },
+
+  getRoomDetails: async (roomId: number): Promise<GetRoomDetailsResponse> => {
+    await delay();
+    const now = new Date();
+    const closedAt = new Date(now.getTime() + 60 * 1000);
+    return {
+      timestamp: now.toISOString(),
+      code: '200',
+      message: 'OK',
+      result: {
+        roomId,
+        roomName: 'AI 공학관 502호 강의실',
+        voteStartedAt: now.toISOString(),
+        voteClosedAt: closedAt.toISOString(),
+        drawRound: 1,
+        participantedUserCount: 5,
       },
     };
   },

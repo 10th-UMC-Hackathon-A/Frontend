@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
-import lotsBox from '../assets/Lots Box.png';
-import creamDefault from '../assets/Cream/Default.png';
-import creamCongrats from '../assets/Cream/Congrats.png';
+import lotsBox from '../assets/해커톤 team+/Lots Box Cropped.png';
+import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
+import creamCongrats from '../assets/해커톤 team+/Icon/Cream/Congrats.png';
 
 const DUMMY_PARTICIPANTS = [
   { id: 'd1', nickname: '김철수' },
@@ -16,9 +16,13 @@ const DUMMY_PARTICIPANTS = [
 
 const DUMMY_MISSIONS = ['에어컨 1도 조절하기', '팔굽혀펴기 10개', '노래 한 소절 부르기'];
 
+const AUTO_SEC = 5;
+
 export default function BombPage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [isResult, setIsResult] = useState(false);
+  const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
+  const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
   const navigate = useNavigate();
 
   const { participants } = useRoomStore();
@@ -30,7 +34,9 @@ export default function BombPage() {
       : DUMMY_PARTICIPANTS;
 
   const handleDraw = () => {
+    if (isSpinning || isResult) return;
     setIsSpinning(true);
+    setStartCountdown(0);
     setTimeout(() => {
       const loser = pool[Math.floor(Math.random() * pool.length)];
       const mission = DUMMY_MISSIONS[Math.floor(Math.random() * DUMMY_MISSIONS.length)];
@@ -40,6 +46,27 @@ export default function BombPage() {
       setTimeout(() => setIsResult(true), 400);
     }, 1500);
   };
+
+  // 5초 후 자동 게임 시작
+  useEffect(() => {
+    if (isResult || isSpinning) return;
+    if (startCountdown <= 0) {
+      const t = setTimeout(() => handleDraw(), 0);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setStartCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startCountdown, isResult, isSpinning]);
+
+  // 결과 화면: 5초 후 자동 /final 이동
+  useEffect(() => {
+    if (!isResult) return;
+    if (resultCountdown <= 0) { navigate('/final'); return; }
+    const t = setTimeout(() => setResultCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isResult, resultCountdown]);
 
   if (isResult) {
     return (
@@ -73,7 +100,7 @@ export default function BombPage() {
           onClick={() => navigate('/final')}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
-          미션 확인하기
+          미션 확인하기 ({resultCountdown}초)
         </button>
       </div>
     );
@@ -92,7 +119,7 @@ export default function BombPage() {
         <img
           src={lotsBox}
           alt="제비뽑기 통"
-          className={`w-64 h-64 object-contain transition-transform ${isSpinning ? 'animate-bounce' : ''}`}
+          className={`w-auto max-h-[360px] object-contain transition-transform ${isSpinning ? 'animate-bounce' : ''}`}
         />
       </div>
 
@@ -101,7 +128,7 @@ export default function BombPage() {
         disabled={isSpinning}
         className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
       >
-        {isSpinning ? '뽑는 중...' : '제비 뽑기'}
+        {isSpinning ? '뽑는 중...' : `제비 뽑기 (${startCountdown}초)`}
       </button>
     </div>
   );

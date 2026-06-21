@@ -4,16 +4,16 @@ import { useVote } from '../hooks/useVote';
 import { useRoomStore } from '../store/roomStore';
 import { voteApi } from '../api/voteApi';
 import type { VoteTypeResDto } from '../types/vote';
-import creamDefault from '../assets/Cream/Default.png';
-import creamCold from '../assets/Cream/Cold.png';
-import creamHot from '../assets/Cream/Hot.png';
+import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
+import creamCold from '../assets/해커톤 team+/Icon/Cream/Cold.png';
+import creamHot from '../assets/해커톤 team+/Icon/Cream/Hot.png';
+import voteColdDefault from '../assets/해커톤 team+/Vote/Cold/Default.png';
+import voteColdSelected from '../assets/해커톤 team+/Vote/Cold/Selected.png';
+import voteHotDefault from '../assets/해커톤 team+/Vote/Hot/Default.png';
+import voteHotSelected from '../assets/해커톤 team+/Vote/Hot/Selected.png';
 
 const question = 'Q. 지금 강의실 온도는 어때요?';
 
-const DESCRIPTIONS: Record<string, string> = {
-  '추워요': '에어컨 좀 줄여주세요 ㅜㅜ',
-  '더워요': '에어컨 좀 켜주세요!!!',
-};
 
 const getCreamImage = (selected: string | null, types: VoteTypeResDto[]) => {
   if (!selected) return creamDefault;
@@ -66,7 +66,7 @@ export default function VotePage() {
     <main className="flex flex-col flex-1 justify-between">
       <section className="flex flex-col items-center gap-5">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
-          찬반 투표
+          한번 투표
         </div>
 
         <header className="flex flex-col items-center gap-1">
@@ -76,7 +76,7 @@ export default function VotePage() {
         <img
           src={getCreamImage(selected, voteTypes)}
           alt="크림 캐릭터"
-          className="w-36 h-36 object-contain"
+          className="w-[330px] h-[330px] object-contain"
         />
 
         <ul className="flex flex-col gap-3 w-full list-none p-0">
@@ -84,24 +84,17 @@ export default function VotePage() {
             const id = String(type.voteTypeId);
             const isSelected = selected === id;
             const isHot = type.label === '더워요';
+            const imgSrc = isHot
+              ? (isSelected ? voteHotSelected : voteHotDefault)
+              : (isSelected ? voteColdSelected : voteColdDefault);
 
             return (
               <li key={type.voteTypeId}>
                 <button
                   onClick={() => setSelected(id)}
-                  className={[
-                    'w-full py-8 px-5 rounded-2xl text-center transition-all cursor-pointer',
-                    isSelected && isHot
-                      ? 'bg-red-50 text-red-600 ring-2 ring-red-300'
-                      : isSelected
-                      ? 'bg-blue-100 text-blue-600 ring-2 ring-blue-400'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200',
-                  ].join(' ')}
+                  className="w-full cursor-pointer transition-transform active:scale-95"
                 >
-                  <p className="text-lg font-bold">{type.label}!</p>
-                  <p className={`text-sm mt-1 ${isSelected && isHot ? 'text-red-300' : isSelected ? 'text-blue-400' : 'text-gray-400'}`}>
-                    {DESCRIPTIONS[type.label] ?? ''}
-                  </p>
+                  <img src={imgSrc} alt={type.label} className="w-full object-contain" />
                 </button>
               </li>
             );
@@ -113,13 +106,16 @@ export default function VotePage() {
         )}
       </section>
 
-      <button
-        onClick={handleVote}
-        disabled={!selected || isLoading || voteTypes.length === 0}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition"
-      >
-        {isLoading ? '투표 중...' : '투표하기'}
-      </button>
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-xs text-gray-400">ⓘ 한 번 투표하면 변경할 수 없어요</p>
+        <button
+          onClick={handleVote}
+          disabled={!selected || isLoading || voteTypes.length === 0}
+          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition"
+        >
+          {isLoading ? '투표 중...' : '투표하기'}
+        </button>
+      </div>
     </main>
   );
 }

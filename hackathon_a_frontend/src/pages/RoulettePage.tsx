@@ -1,11 +1,11 @@
 // src/pages/RoulettePage.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { calculateRouletteRotation, getRandomSpinDuration } from '../utils/roulette';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
-import creamDefault from '../assets/Cream/Default.png';
-import creamCongrats from '../assets/Cream/Congrats.png';
+import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
+import creamCongrats from '../assets/해커톤 team+/Icon/Cream/Congrats.png';
 
 const SECTOR_COLORS = [
   '#DBEAFE', '#93C5FD', '#60A5FA', '#FEE2E2',
@@ -13,6 +13,7 @@ const SECTOR_COLORS = [
 ];
 
 const DUMMY_NAMES = ['도로로', '기로로', '케로로', '타마마', '쿠루루', '한로로', '크롱롱', '도로로2'];
+const AUTO_SEC = 5;
 
 export default function RoulettePage() {
   const navigate = useNavigate();
@@ -31,6 +32,8 @@ export default function RoulettePage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [winnerIdx, setWinnerIdx] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
+  const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
 
   const handleSpin = () => {
     if (isSpinning) return;
@@ -43,15 +46,43 @@ export default function RoulettePage() {
     setSpinDuration(duration);
     setRotation(targetRotation);
     setIsSpinning(true);
+    setStartCountdown(0);
     setWinnerIdx(null);
     setShowResult(false);
 
     setTimeout(() => {
-      setIsSpinning(false);
       setWinnerIdx(selectedIdx);
-      setTimeout(() => setShowResult(true), 600);
+      setTimeout(() => {
+        setShowResult(true);
+        setIsSpinning(false);
+      }, 600);
     }, duration);
   };
+
+  // 5초 후 자동 게임 시작
+  useEffect(() => {
+    if (showResult || isSpinning) return;
+    if (startCountdown <= 0) {
+      const t = setTimeout(() => handleSpin(), 0);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setStartCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startCountdown, showResult, isSpinning]);
+
+  // 결과 화면: 5초 후 자동 /final 이동
+  useEffect(() => {
+    if (!showResult || winnerIdx === null) return;
+    if (resultCountdown <= 0) {
+      setLoser('', participants[winnerIdx]);
+      navigate('/final');
+      return;
+    }
+    const t = setTimeout(() => setResultCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResult, resultCountdown, winnerIdx]);
 
   // SVG wheel
   const SIZE = 280;
@@ -110,7 +141,7 @@ export default function RoulettePage() {
           onClick={() => { setLoser('', participants[winnerIdx]); navigate('/final'); }}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto"
         >
-          미션 확인하기
+          미션 확인하기 ({resultCountdown}초)
         </button>
       </div>
     );
@@ -126,7 +157,6 @@ export default function RoulettePage() {
 
         {/* 룰렛 휠 */}
         <div className="relative flex items-center justify-center">
-          {/* 포인터 */}
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
             <div className="w-0 h-0
               border-l-[9px] border-l-transparent
@@ -165,7 +195,6 @@ export default function RoulettePage() {
                 </text>
               </g>
             ))}
-            {/* 중앙 원 */}
             <circle
               cx={CX}
               cy={CY}
@@ -203,7 +232,7 @@ export default function RoulettePage() {
         disabled={isSpinning}
         className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
       >
-        룰렛 돌리기
+        {isSpinning ? '돌리는 중...' : `룰렛 돌리기 (${startCountdown}초)`}
       </button>
     </div>
   );

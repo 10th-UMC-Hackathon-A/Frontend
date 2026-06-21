@@ -3,21 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useVote } from '../hooks/useVote';
 import { useVoteStore } from '../store/voteStore';
 import { useRoomStore } from '../store/roomStore';
-import creamThinking from '../assets/Cream/Thinking.png';
+import { roomApi } from '../api/roomApi';
+import creamThinking from '../assets/해커톤 team+/Icon/Cream/Thinking.png';
 
 const question = 'Q. 지금 강의실 온도 어때요?';
 
-const ROUND_DURATION_SEC = 60;
-
-function getSecondsUntilNextDraw(): number {
+function getFallbackSeconds(): number {
   const roundStart = Number(localStorage.getItem('roundStartTime'));
   if (roundStart) {
     const elapsed = Math.floor((Date.now() - roundStart) / 1000);
-    return Math.max(0, ROUND_DURATION_SEC - elapsed);
+    return Math.max(0, 60 - elapsed);
   }
-  // 첫 라운드 fallback: 다음 분 단위까지 남은 시간
-  const now = new Date();
-  return 60 - now.getSeconds();
+  return 60 - new Date().getSeconds();
 }
 
 export default function VoteProgressPage() {
@@ -27,12 +24,25 @@ export default function VoteProgressPage() {
   const { voteResults } = useVoteStore();
   const { startPolling, stopPolling } = useVote(roomId);
 
-  const [timeLeft, setTimeLeft] = useState(getSecondsUntilNextDraw);
+  const [timeLeft, setTimeLeft] = useState(getFallbackSeconds);
 
   useEffect(() => {
     startPolling();
     return () => stopPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // voteClosedAt 기준으로 타이머 동기화
+  useEffect(() => {
+    if (!roomId) return;
+    roomApi.getRoomDetails(roomId)
+      .then((res) => {
+        const closedAt = new Date(res.result.voteClosedAt).getTime();
+        const remaining = Math.max(0, Math.ceil((closedAt - Date.now()) / 1000));
+        setTimeLeft(remaining);
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -71,35 +81,38 @@ export default function VoteProgressPage() {
         ];
 
   return (
-    <main className="flex flex-col flex-1 gap-6">
+    <main className="flex flex-col flex-1 gap-5">
+      {/* 배지 */}
       <div className="flex justify-center">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
           투표 진행
         </div>
       </div>
 
-      <section className="flex flex-col items-center gap-1">
+      {/* 제목 */}
+      <section className="flex flex-col items-center gap-0.5">
         <p className="text-xl font-bold text-gray-900">투표 진행 중...</p>
-        <p className="text-base font-semibold text-blue-500">{question}</p>
+        <p className="text-sm font-semibold text-blue-500">{question}</p>
         <p className="text-xs text-gray-400">총 {total}명 참여 · 마감까지 실시간 갱신</p>
       </section>
 
-      <section className="bg-gray-100 rounded-2xl py-5 flex flex-col items-center gap-1">
-        <p className="text-sm text-gray-400">남은 시간</p>
-        <p className="text-4xl font-black text-gray-900">{formatTime(timeLeft)}</p>
+      {/* 타이머 카드 */}
+      <section className="bg-gray-100 rounded-2xl py-6 flex flex-col items-center gap-1">
+        <p className="text-xs text-gray-400 font-medium">남은 시간</p>
+        <p className="text-5xl font-black text-gray-900 tracking-tight">{formatTime(timeLeft)}</p>
       </section>
 
-      <section className="flex flex-col gap-4">
+      {/* 투표 바 + 크림 캐릭터 */}
+      <section className="flex flex-col gap-4 flex-1">
         {displayResults.map((result) => {
           const percentage = total > 0 ? Math.round((result.count / total) * 100) : 0;
           return (
-
             <div key={result.label} className="flex flex-col gap-1.5">
-              <div className="flex justify-between text-sm font-medium text-gray-700">
+              <div className="flex justify-between text-sm font-semibold text-gray-700">
                 <span>{result.label}</span>
                 <span>{percentage}%</span>
               </div>
-              <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
+              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요' ? 'bg-blue-400' : 'bg-red-400'}`}
                   style={{ width: `${percentage}%` }}
@@ -111,8 +124,9 @@ export default function VoteProgressPage() {
         })}
       </section>
 
-      <div className="flex justify-center mt-auto">
-        <img src={creamThinking} alt="크림 캐릭터" className="w-32 h-32 object-contain" />
+      {/* 크림 캐릭터 */}
+      <div className="flex justify-end mt-auto">
+        <img src={creamThinking} alt="크림 캐릭터" className="w-28 h-28 object-contain" />
       </div>
     </main>
   );

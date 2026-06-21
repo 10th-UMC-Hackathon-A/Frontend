@@ -30,6 +30,7 @@ export interface ParticipantResDto {
   nickName: string;
   uid: string;
   accessToken: string;
+  refreshToken: string;
 }
 
 export interface JoinParticipantResponse {
@@ -44,4 +45,43 @@ export interface Participant {
   nickname: string;
   isHost: boolean;
   isConnected: boolean;
+}
+
+export interface VerifyAccessResDto {
+  nickName: string;
+}
+
+export interface VerifyAccessResponse {
+  timestamp: string;
+  code: string;
+  message: string;
+  result: VerifyAccessResDto;
+}
+
+export interface RoomDetailsResDto {
+  roomId: number;
+  roomName: string;
+  voteStartedAt: string;
+  voteClosedAt: string;
+  drawRound: number;
+  participantedUserCount: number;
+}
+
+export interface TokenRefreshResDto {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface TokenRefreshResponse {
+  timestamp: string;
+  code: string;
+  message: string;
+  result: TokenRefreshResDto;
+}
+
+export interface GetRoomDetailsResponse {
+  timestamp: string;
+  code: string;
+  message: string;
+  result: RoomDetailsResDto;
 }
