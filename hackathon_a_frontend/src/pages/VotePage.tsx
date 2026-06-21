@@ -66,7 +66,7 @@ export default function VotePage() {
 
   return (
     <main className="flex flex-col flex-1 min-h-0 justify-between gap-2">
-      <section className="flex flex-col items-center gap-[clamp(6px,1.5vh,20px)] min-h-0">
+      <section className="flex flex-col items-center gap-[clamp(6px,1.5svh,20px)] min-h-0">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
           찬반 투표
         </div>
@@ -78,10 +78,10 @@ export default function VotePage() {
         <img
           src={getCreamImage(selected, voteTypes)}
           alt="크림 캐릭터"
-          className="w-[clamp(150px,28vh,260px)] h-auto aspect-square object-contain"
+          className="w-[clamp(130px,24svh,220px)] h-auto aspect-square object-contain"
         />
 
-        <ul className="flex flex-col gap-2 w-[clamp(250px,40vh,320px)] max-w-full list-none p-0">
+        <ul className="flex flex-col gap-2 w-[clamp(230px,37svh,310px)] max-w-full list-none p-0">
           {voteTypes.map((type) => {
             const id = String(type.voteTypeId);
             const isSelected = selected === id;

@@ -106,7 +106,7 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <div className="bg-blue-500 rounded-2xl px-6 py-[clamp(24px,6vh,64px)] flex flex-col items-center gap-3 text-center">
+      <div className="bg-blue-500 rounded-2xl px-6 py-[clamp(24px,6svh,64px)] flex flex-col items-center gap-3 text-center">
         <p className="text-blue-200 text-sm">
           {isSelf ? '오늘의 미션' : '벌칙자가 수행 중인 미션'}
         </p>
@@ -114,7 +114,7 @@ export default function FinalPage() {
       </div>
 
       <div className="flex justify-center">
-        <div className="relative w-[clamp(190px,30vh,256px)] aspect-square flex items-center justify-center">
+        <div className="relative w-[clamp(190px,30svh,256px)] aspect-square flex items-center justify-center">
           <svg viewBox="0 0 256 256" className="absolute inset-0 w-full h-full">
             <defs>
               <linearGradient id="timerGradient" gradientUnits="userSpaceOnUse" x1="128" y1="0" x2="128" y2="256">

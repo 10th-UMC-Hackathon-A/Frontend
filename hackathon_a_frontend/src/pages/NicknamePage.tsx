@@ -210,7 +210,7 @@ export default function NicknamePage() {
 
   return (
     <main className="flex flex-col flex-1 min-h-0 justify-between gap-2">
-      <section className="flex flex-col items-center gap-[clamp(10px,2.5vh,24px)] mt-[clamp(4px,2vh,24px)] min-h-0">
+      <section className="flex flex-col items-center gap-[clamp(10px,2.5svh,24px)] mt-[clamp(4px,2svh,24px)] min-h-0">
         <div className="w-full bg-blue-50 rounded-2xl px-5 py-4 flex flex-col items-center gap-1">
           <span className="text-xs text-gray-400">진행 중인 방</span>
           <p className="text-lg font-bold text-gray-900">{fetchedRoomName ?? `방 #${roomId}`}</p>
@@ -219,7 +219,7 @@ export default function NicknamePage() {
         <img
           src={logo}
           alt="냉방전쟁 로고"
-          className="w-auto max-w-[260px] max-h-[clamp(150px,28vh,260px)] object-contain"
+          className="w-auto max-w-[260px] max-h-[clamp(150px,28svh,260px)] object-contain"
         />
 
         <div className="w-full flex flex-col items-center gap-1">
