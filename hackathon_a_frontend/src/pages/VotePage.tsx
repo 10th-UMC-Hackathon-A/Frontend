@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 import { useVote } from '../hooks/useVote';
 import { useRoomStore } from '../store/roomStore';
@@ -120,13 +121,9 @@ export default function VotePage() {
 
       <div className="flex flex-col items-center gap-2 shrink-0">
         <p className="text-xs text-gray-400">ⓘ 한 번 투표하면 변경할 수 없어요</p>
-        <button
-          onClick={handleVote}
-          disabled={!selected || isLoading || voteTypes.length === 0}
-          className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition"
-        >
+        <Button variant="blue" fullWidth disabled={!selected || isLoading || voteTypes.length === 0} onClick={handleVote}>
           {isLoading ? '투표 중...' : '투표하기'}
-        </button>
+        </Button>
       </div>
     </main>
   );

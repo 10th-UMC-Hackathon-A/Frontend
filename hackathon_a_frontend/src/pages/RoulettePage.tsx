@@ -1,5 +1,6 @@
 // src/pages/RoulettePage.tsx
 import { useState, useEffect } from 'react';
+import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 import { calculateRouletteRotation, getRandomSpinDuration } from '../utils/roulette';
 import { useRoomStore } from '../store/roomStore';
@@ -157,6 +158,9 @@ export default function RoulettePage() {
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
+        <Button variant="blue" fullWidth onClick={() => { setLoser('', participants[winnerIdx]); navigate('/final'); }} className="mt-auto">
+          미션 확인하기
+        </Button>
       </div>
     );
   }
@@ -245,6 +249,10 @@ export default function RoulettePage() {
           </div>
         </div>
       </div>
+
+      <Button variant="blue" fullWidth disabled={isSpinning} onClick={handleSpin} className="mt-2 shrink-0">
+        {isSpinning ? '돌리는 중...' : `룰렛 돌리기 (${startCountdown}초)`}
+      </Button>
     </div>
   );
 }

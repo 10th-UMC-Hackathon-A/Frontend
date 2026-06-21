@@ -189,12 +189,9 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <button
-        onClick={goToVote}
-        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition"
-      >
+      <Button variant="blue" fullWidth onClick={goToVote}>
         미션 완료
-      </button>
+      </Button>
     </div>
   );
 }

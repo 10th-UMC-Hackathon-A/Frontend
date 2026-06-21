@@ -1,5 +1,6 @@
 // src/pages/LadderPage.tsx
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from '../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
 import { useRoomStore } from '../store/roomStore';
@@ -267,6 +268,9 @@ export default function LadderPage() {
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
+        <Button variant="blue" fullWidth onClick={() => { setLoser('', winnerName); navigate('/final'); }} className="mt-auto">
+          미션 확인하기
+        </Button>
       </div>
     );
   }
@@ -319,6 +323,10 @@ export default function LadderPage() {
 
         <p className="text-sm text-gray-400">'당첨'에 도착한 사람이 벌칙자!</p>
       </div>
+
+      <Button variant="blue" fullWidth disabled={isAnimating || animDone} onClick={handleStart} className="mt-2 shrink-0">
+        {isAnimating ? '사다리 타는 중...' : `사다리 타기 (${startCountdown}초)`}
+      </Button>
     </div>
   );
 }
