@@ -74,7 +74,7 @@ export default function BombPage() {
 
   if (isResult) {
     return (
-      <div className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,2vh,24px)]">
+      <div className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,2svh,20px)]">
         <div className="flex justify-center">
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
             제비뽑기 결과
@@ -83,11 +83,11 @@ export default function BombPage() {
 
         <p className="text-center text-lg font-semibold text-gray-500">두구두구... 벌칙자는?</p>
 
-        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-[clamp(16px,3vh,32px)] flex flex-col items-center gap-2">
+        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-[clamp(14px,2.5svh,26px)] flex flex-col items-center gap-2">
           <span className="absolute top-4 right-5 text-4xl font-black text-blue-200">
             {resultCountdown}
           </span>
-          <div className="w-[clamp(112px,16vh,144px)] aspect-square bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
+          <div className="w-[clamp(96px,14svh,132px)] aspect-square bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
             <img
               src={creamYou}
               alt="당첨된 크림 캐릭터"
@@ -104,7 +104,7 @@ export default function BombPage() {
           <img
             src={creamCongrats}
             alt="축하 캐릭터"
-            className="w-[clamp(120px,20vh,208px)] h-auto aspect-square object-contain"
+            className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
 

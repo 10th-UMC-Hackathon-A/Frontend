@@ -91,20 +91,20 @@ export default function VoteProgressPage() {
       </div>
 
       {/* 제목 */}
-      <section className="flex flex-col items-center gap-1 mt-[clamp(20px,4vh,40px)]">
+      <section className="flex flex-col items-center gap-1 mt-[clamp(16px,3svh,32px)]">
         <p className="text-2xl font-bold text-gray-900">투표 진행 중...</p>
         <p className="text-xl font-bold text-gray-500 text-center">{question}</p>
         <p className="text-sm text-gray-400">총 {total}명 참여 · 마감까지 실시간 갱신</p>
       </section>
 
       {/* 타이머 카드 */}
-      <section className="w-full max-w-[330px] self-center bg-gray-100 rounded-2xl py-[clamp(16px,3vh,24px)] flex flex-col items-center gap-1 mt-[clamp(24px,6vh,64px)]">
+      <section className="w-full max-w-[330px] self-center bg-gray-100 rounded-2xl py-[clamp(14px,2.5svh,22px)] flex flex-col items-center gap-1 mt-[clamp(20px,4svh,44px)]">
         <p className="text-base text-gray-400 font-medium">남은 시간</p>
         <p className="text-5xl font-black text-gray-900 tracking-tight">{formatTime(timeLeft)}</p>
       </section>
 
       {/* 투표 바 */}
-      <section className="flex flex-col gap-3 mt-[clamp(20px,3.5vh,32px)]">
+      <section className="flex flex-col gap-3 mt-[clamp(16px,3svh,28px)]">
         {displayResults.map((result) => {
           const percentage = total > 0 ? Math.round((result.count / total) * 100) : 0;
           return (
@@ -125,11 +125,11 @@ export default function VoteProgressPage() {
       </section>
 
       {/* 크림 캐릭터 */}
-      <div className="flex justify-center mt-[clamp(20px,5vh,56px)]">
+      <div className="flex justify-center mt-[clamp(16px,4svh,40px)]">
         <img
           src={creamThinking}
           alt="크림 캐릭터"
-          className="w-[clamp(130px,23vh,192px)] h-auto aspect-square object-contain"
+          className="w-[clamp(120px,21svh,180px)] h-auto aspect-square object-contain"
         />
       </div>
     </main>

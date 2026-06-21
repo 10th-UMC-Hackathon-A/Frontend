@@ -5,7 +5,7 @@ export default function ErrorPage() {
   const navigate = useNavigate();
 
   return (
-    <main className="flex flex-col flex-1 gap-8 pt-[clamp(80px,18vh,180px)]">
+    <main className="flex flex-col flex-1 gap-8 pt-[clamp(80px,18svh,180px)]">
       {/* 에러 카드 */}
       <section className="mx-2 bg-red-50 rounded-2xl px-6 py-9 flex flex-col items-center gap-5">
         <div className="relative w-full h-24">

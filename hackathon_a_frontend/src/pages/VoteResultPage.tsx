@@ -147,7 +147,7 @@ export default function VoteResultPage() {
       <section className="flex flex-col items-center gap-1">
         <p className="text-xl font-bold text-gray-900">투표 마감</p>
         <p className="text-sm text-gray-400">{subtitleText}</p>
-        <p className="text-[clamp(96px,16vh,120px)] leading-none font-black text-gray-900">
+        <p className="text-[clamp(72px,13svh,110px)] leading-none font-black text-gray-900">
           {countdown}
         </p>
       </section>
@@ -157,13 +157,13 @@ export default function VoteResultPage() {
         <img
           src={getCreamImage()}
           alt="크림 캐릭터"
-          className="w-[clamp(220px,32vh,290px)] h-auto aspect-square object-contain"
+          className="w-[clamp(170px,27svh,250px)] h-auto aspect-square object-contain"
         />
       </div>
 
       {/* 결과 텍스트 */}
       <section className="flex flex-col items-center gap-1">
-        <p className="text-[clamp(24px,3.5vh,30px)] leading-tight font-black text-gray-900 text-center">
+        <p className="text-[clamp(22px,3.5svh,30px)] leading-tight font-black text-gray-900 text-center">
           {resultText}
         </p>
       </section>
