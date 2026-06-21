@@ -44,7 +44,7 @@ export default function VoteProgressPage() {
       .getRoomDetails(roomId)
       .then((res) => {
         const closedAt = new Date(res.result.voteClosedAt).getTime();
-        const remaining = Math.max(120, Math.ceil((closedAt - Date.now()) / 1000));
+        const remaining = Math.max(5, Math.ceil((closedAt - Date.now()) / 1000));
         setTimeLeft(remaining);
       })
       .catch(() => setTimeLeft(getFallbackSeconds()));
