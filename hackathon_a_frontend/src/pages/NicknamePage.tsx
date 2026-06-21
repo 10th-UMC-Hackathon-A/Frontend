@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import logo from '../assets/Logo.png';
-import iconCheck from '../assets/해커톤 team+/Icon/Check.png';
-import iconError from '../assets/해커톤 team+/Icon/Error.png';
+import iconCheck from '../assets/images/Icon/Check.png';
+import iconError from '../assets/images/Icon/Error.png';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { useRoomStore } from '../store/roomStore';
@@ -49,13 +49,16 @@ export default function NicknamePage() {
 
     resetGame();
 
-    roomApi.getRooms().then((res) => {
-      const found = res.result.find((r) => r.roomId === roomId);
-      if (found) {
-        setFetchedRoomName(found.roomName);
-        setRoomName(found.roomName);
-      }
-    }).catch(() => {});
+    roomApi
+      .getRooms()
+      .then((res) => {
+        const found = res.result.find((r) => r.roomId === roomId);
+        if (found) {
+          setFetchedRoomName(found.roomName);
+          setRoomName(found.roomName);
+        }
+      })
+      .catch(() => {});
 
     const goToVoteWith = (nickName: string, token: string, refresh = '') => {
       localStorage.setItem('accessToken', token);
@@ -72,19 +75,30 @@ export default function NicknamePage() {
     // uid로 /participants 재호출 → 기존 참가자면 닉네임+신규토큰 반환
     const tryJoinWithUid = () => {
       const uid = localStorage.getItem('uid');
-      if (!uid) { setIsChecking(false); return; }
+      if (!uid) {
+        setIsChecking(false);
+        return;
+      }
 
-      roomApi.joinParticipant('재입장', roomId!)
-        .then((res) => goToVoteWith(res.result.nickName, res.result.accessToken, res.result.refreshToken))
-        .catch(() => { setIsChecking(false); });
+      roomApi
+        .joinParticipant('재입장', roomId!)
+        .then((res) =>
+          goToVoteWith(res.result.nickName, res.result.accessToken, res.result.refreshToken)
+        )
+        .catch(() => {
+          setIsChecking(false);
+        });
     };
 
     const accessToken = localStorage.getItem('accessToken');
 
     if (accessToken) {
       // accessToken으로 방 참가 여부 확인 (닉네임 조회)
-      roomApi.verifyAccess(roomId)
-        .then((res) => goToVoteWith(res.result.nickName, accessToken, localStorage.getItem('refreshToken') ?? ''))
+      roomApi
+        .verifyAccess(roomId)
+        .then((res) =>
+          goToVoteWith(res.result.nickName, accessToken, localStorage.getItem('refreshToken') ?? '')
+        )
         .catch(() => {
           // 접근 불가 → 이전에 등록된 uid로 새 토큰 재발급 시도
           localStorage.removeItem('accessToken');
@@ -92,7 +106,7 @@ export default function NicknamePage() {
         });
     }
     // accessToken 없으면 isChecking 초기값이 이미 false → 폼 바로 표시
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isNicknameValid = NICKNAME_REGEX.test(nickname.trim());
@@ -199,12 +213,14 @@ export default function NicknamePage() {
       <section className="flex flex-col items-center gap-6 mt-6">
         <div className="w-full bg-blue-50 rounded-2xl px-5 py-4 flex flex-col items-center gap-1">
           <span className="text-xs text-gray-400">진행 중인 방</span>
-          <p className="text-lg font-bold text-gray-900">
-            {fetchedRoomName ?? `방 #${roomId}`}
-          </p>
+          <p className="text-lg font-bold text-gray-900">{fetchedRoomName ?? `방 #${roomId}`}</p>
         </div>
 
-        <img src={logo} alt="냉방전쟁 로고" className="w-full max-w-[260px] h-auto object-contain" />
+        <img
+          src={logo}
+          alt="냉방전쟁 로고"
+          className="w-full max-w-[260px] h-auto object-contain"
+        />
 
         <div className="w-full flex flex-col items-center gap-1">
           <p className="text-xl font-bold text-gray-900">닉네임을 입력해 주세요</p>
@@ -258,9 +274,14 @@ export default function NicknamePage() {
             className="w-4 h-4 accent-blue-500"
           />
           <span className="text-sm text-gray-500">
-            <Link to="/terms" className="underline text-blue-500" onClick={(e) => e.stopPropagation()}>
+            <Link
+              to="/terms"
+              className="underline text-blue-500"
+              onClick={(e) => e.stopPropagation()}
+            >
               이용 약관 및 개인 정보 처리 방침
-            </Link>에 동의합니다.
+            </Link>
+            에 동의합니다.
           </span>
         </label>
       </section>

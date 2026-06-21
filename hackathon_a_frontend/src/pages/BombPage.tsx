@@ -2,17 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
-import lotsBox from '../assets/해커톤 team+/Lots Box Cropped.png';
-import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
-import creamCongrats from '../assets/해커톤 team+/Icon/Cream/Congrats.png';
-
-const DUMMY_PARTICIPANTS = [
-  { id: 'd1', nickname: '김철수' },
-  { id: 'd2', nickname: '이영희' },
-  { id: 'd3', nickname: '박민준' },
-  { id: 'd4', nickname: '최서연' },
-  { id: 'd5', nickname: '정도현' },
-];
+import { penaltyApi } from '../api/penaltyApi';
+import lotsBox from '../assets/images/Lots Box Cropped.png';
+import creamYou from '../assets/images/Icon/Cream/You.png';
+import creamCongrats from '../assets/images/Icon/Cream/Congrats.png';
 
 const DUMMY_MISSIONS = ['에어컨 1도 조절하기', '팔굽혀펴기 10개', '노래 한 소절 부르기'];
 
@@ -25,26 +18,34 @@ export default function BombPage() {
   const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
   const navigate = useNavigate();
 
-  const { participants } = useRoomStore();
+  const { roomId: storeRoomId } = useRoomStore();
   const { setLoser, setPunishment, loserNickname } = useGameStore();
+  const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || 0);
 
-  const pool =
-    participants.length > 0
-      ? participants.map((p) => ({ id: p.id, nickname: p.nickname }))
-      : DUMMY_PARTICIPANTS;
-
-  const handleDraw = () => {
+  const handleDraw = async () => {
     if (isSpinning || isResult) return;
     setIsSpinning(true);
     setStartCountdown(0);
-    setTimeout(() => {
-      const loser = pool[Math.floor(Math.random() * pool.length)];
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    try {
+      // 정상 흐름에서는 결과 페이지에서 정해진 벌칙자를 그대로 사용한다.
+      // BombPage로 직접 진입한 경우에만 백엔드에서 한 번 추첨한다.
+      if (!loserNickname) {
+        if (!roomId) throw new Error('방 정보가 없습니다.');
+        const response = await penaltyApi.drawPenaltyUser(roomId);
+        setLoser('', response.result.nickName);
+      }
+
       const mission = DUMMY_MISSIONS[Math.floor(Math.random() * DUMMY_MISSIONS.length)];
-      setLoser(loser.id, loser.nickname);
       setPunishment(mission);
       setIsSpinning(false);
       setTimeout(() => setIsResult(true), 400);
-    }, 1500);
+    } catch {
+      setIsSpinning(false);
+      setStartCountdown(AUTO_SEC);
+    }
   };
 
   // 5초 후 자동 게임 시작
@@ -56,16 +57,19 @@ export default function BombPage() {
     }
     const t = setTimeout(() => setStartCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startCountdown, isResult, isSpinning]);
 
   // 결과 화면: 5초 후 자동 /final 이동
   useEffect(() => {
     if (!isResult) return;
-    if (resultCountdown <= 0) { navigate('/final'); return; }
+    if (resultCountdown <= 0) {
+      navigate('/final');
+      return;
+    }
     const t = setTimeout(() => setResultCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isResult, resultCountdown]);
 
   if (isResult) {
@@ -77,12 +81,18 @@ export default function BombPage() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
+        <p className="text-center text-lg font-semibold text-gray-500">두구두구... 벌칙자는?</p>
 
-        <div className="relative bg-blue-500 rounded-2xl p-8 flex flex-col items-center gap-3">
-
-          <div className="w-36 h-36 bg-white rounded-full flex items-center justify-center overflow-hidden">
-            <img src={creamDefault} alt="크림 캐릭터" className="w-36 h-36 object-contain" />
+        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-8 flex flex-col items-center gap-3">
+          <span className="absolute top-4 right-5 text-4xl font-black text-blue-200">
+            {resultCountdown}
+          </span>
+          <div className="w-36 h-36 bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
+            <img
+              src={creamYou}
+              alt="당첨된 크림 캐릭터"
+              className="w-full h-full object-contain scale-110 translate-y-2"
+            />
           </div>
           <p className="text-3xl font-black text-white mt-1">{loserNickname}</p>
           <p className="text-white font-semibold">당첨!</p>
@@ -98,7 +108,7 @@ export default function BombPage() {
           onClick={() => navigate('/final')}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
-          미션 확인하기 ({resultCountdown}초)
+          미션 확인하기
         </button>
       </div>
     );

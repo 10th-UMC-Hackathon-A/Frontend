@@ -4,16 +4,15 @@ import { useVote } from '../hooks/useVote';
 import { useRoomStore } from '../store/roomStore';
 import { voteApi } from '../api/voteApi';
 import type { VoteTypeResDto } from '../types/vote';
-import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
-import creamCold from '../assets/해커톤 team+/Icon/Cream/Cold.png';
-import creamHot from '../assets/해커톤 team+/Icon/Cream/Hot.png';
-import voteColdDefault from '../assets/해커톤 team+/Vote/Cold/Default.png';
-import voteColdSelected from '../assets/해커톤 team+/Vote/Cold/Selected.png';
-import voteHotDefault from '../assets/해커톤 team+/Vote/Hot/Default.png';
-import voteHotSelected from '../assets/해커톤 team+/Vote/Hot/Selected.png';
+import creamDefault from '../assets/images/Icon/Cream/Default.png';
+import creamCold from '../assets/images/Icon/Cream/Cold.png';
+import creamHot from '../assets/images/Icon/Cream/Hot.png';
+import voteColdDefault from '../assets/images/Vote/Cold/Default.png';
+import voteColdSelected from '../assets/images/Vote/Cold/Selected.png';
+import voteHotDefault from '../assets/images/Vote/Hot/Default.png';
+import voteHotSelected from '../assets/images/Vote/Hot/Selected.png';
 
 const question = 'Q. 지금 강의실 온도는 어때요?';
-
 
 const getCreamImage = (selected: string | null, types: VoteTypeResDto[]) => {
   if (!selected) return creamDefault;
@@ -38,7 +37,10 @@ export default function VotePage() {
   }, [myVote, navigate]);
 
   useEffect(() => {
-    voteApi.getVoteTypes().then((res) => setVoteTypes(res.result)).catch(() => {});
+    voteApi
+      .getVoteTypes()
+      .then((res) => setVoteTypes(res.result))
+      .catch(() => {});
   }, []);
 
   const handleVote = async () => {
@@ -66,7 +68,7 @@ export default function VotePage() {
     <main className="flex flex-col flex-1 justify-between">
       <section className="flex flex-col items-center gap-5">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
-          한번 투표
+          찬반 투표
         </div>
 
         <header className="flex flex-col items-center gap-1">
@@ -85,8 +87,12 @@ export default function VotePage() {
             const isSelected = selected === id;
             const isHot = type.label === '더워요';
             const imgSrc = isHot
-              ? (isSelected ? voteHotSelected : voteHotDefault)
-              : (isSelected ? voteColdSelected : voteColdDefault);
+              ? isSelected
+                ? voteHotSelected
+                : voteHotDefault
+              : isSelected
+                ? voteColdSelected
+                : voteColdDefault;
 
             return (
               <li key={type.voteTypeId}>
@@ -102,7 +108,9 @@ export default function VotePage() {
         </ul>
 
         {error && (
-          <p role="alert" className="text-xs text-gray-400">{error}</p>
+          <p role="alert" className="text-xs text-gray-400">
+            {error}
+          </p>
         )}
       </section>
 

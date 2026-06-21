@@ -8,6 +8,7 @@ import type {
   DrawPenaltyUserResponse,
   MissionCompleteResponse,
 } from '../../types/penalty';
+import { FALLBACK_PARTICIPANT_NAMES } from '../../constants/participants';
 
 let nextId = 4;
 const dummyPenalties: PenaltyItem[] = [
@@ -15,8 +16,6 @@ const dummyPenalties: PenaltyItem[] = [
   { penaltyId: 2, label: '팔굽혀펴기 10개' },
   { penaltyId: 3, label: '노래 한 소절 부르기' },
 ];
-
-const DUMMY_PARTICIPANTS = ['도로로', '기로로', '케로로', '타마마', '쿠루루'];
 
 const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -59,10 +58,10 @@ export const dummyPenaltyApi = {
 
   drawPenaltyUser: async (roomId: number): Promise<DrawPenaltyUserResponse> => {
     await delay();
-    const winnerIndex = Math.floor(Math.random() * DUMMY_PARTICIPANTS.length);
+    const winnerIndex = Math.floor(Math.random() * FALLBACK_PARTICIPANT_NAMES.length);
     return {
       timestamp: new Date().toISOString(), code: '200', message: 'OK',
-      result: { roomId, drawRound: 1, nickName: DUMMY_PARTICIPANTS[winnerIndex], penaltyType: 'roulette', winnerIndex, drawUserList: DUMMY_PARTICIPANTS },
+      result: { roomId, drawRound: 1, nickName: FALLBACK_PARTICIPANT_NAMES[winnerIndex], penaltyType: 'roulette', winnerIndex, drawUserList: FALLBACK_PARTICIPANT_NAMES },
     };
   },
 

@@ -1,51 +1,88 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
-import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
+import creamDefault from '../assets/images/Icon/Cream/Default.png';
+
+const COUNTDOWN_SEC = 5;
+const question = 'Q. 지금 강의실 온도 어때요?';
 
 export default function DrawPage() {
   const navigate = useNavigate();
-  const { voteResults } = useVoteStore();
+  const { voteResults, reset: resetVote } = useVoteStore();
+  const [countdown, setCountdown] = useState(COUNTDOWN_SEC);
+
+  const total = voteResults.reduce((sum, result) => sum + result.count, 0);
+  const maxCount = voteResults.length > 0 ? Math.max(...voteResults.map((result) => result.count)) : 0;
+  const displayResults =
+    voteResults.length > 0
+      ? voteResults
+      : [
+          { label: '추워요', count: 0 },
+          { label: '더워요', count: 0 },
+        ];
 
   const handleReVote = () => {
     localStorage.removeItem('myVote');
+    resetVote();
     navigate('/vote', { replace: true });
   };
 
+  useEffect(() => {
+    if (countdown <= 0) {
+      localStorage.removeItem('myVote');
+      resetVote();
+      navigate('/vote', { replace: true });
+      return;
+    }
+
+    const timer = setTimeout(() => setCountdown((current) => current - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown, navigate, resetVote]);
+
   return (
-    <main className="flex flex-col flex-1 gap-6">
+    <main className="flex flex-col flex-1 gap-4">
       <div className="flex justify-center">
-        <div className="bg-yellow-100 text-yellow-600 text-sm font-semibold px-5 py-2 rounded-full">
-          동률
+        <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
+          투표 결과
         </div>
       </div>
 
-      <section className="flex flex-col items-center gap-2 mt-2">
-        <p className="text-2xl font-black text-gray-900">동률입니다!</p>
-        <p className="text-sm text-gray-400 text-center">득표 수가 같아 다시 투표합니다</p>
+      <section className="flex flex-col items-center gap-1 mt-4">
+        <p className="text-xl font-bold text-gray-900">투표 마감</p>
+        <p className="text-base font-semibold text-gray-400">재투표까지</p>
+        <p className="text-[96px] leading-none font-black text-gray-900 mt-1">{countdown}</p>
       </section>
 
-      <div className="flex justify-center">
-        <img src={creamDefault} alt="크림 캐릭터" className="w-64 h-64 object-contain" />
+      <div className="bg-blue-50/50 rounded-2xl py-6 flex justify-center">
+        <img src={creamDefault} alt="크림 캐릭터" className="w-44 h-44 object-contain" />
       </div>
 
-      {voteResults.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <p className="text-sm font-semibold text-gray-700">동률 결과</p>
-          {voteResults.map((r, idx) => (
-            <div
-              key={r.label}
-              className="flex justify-between items-center bg-gray-100 rounded-xl px-4 py-3"
-            >
-              <span className="text-sm font-semibold text-gray-700">{r.label}</span>
-              <span
-                className={`text-sm font-bold ${idx === 0 ? 'text-blue-500' : 'text-red-400'}`}
-              >
-                {r.count}표
-              </span>
+      <p className="text-3xl font-black text-gray-900 text-center">비겼어요</p>
+
+      <section className="flex flex-col gap-3 px-2 mt-3">
+        <p className="text-lg font-bold text-gray-500 text-center">{question}</p>
+        <p className="text-sm text-gray-400 text-center -mt-2">
+          총 {total}명 참여 · {displayResults.map((result) => `${result.label} ${result.count}`).join(' / ')}
+        </p>
+
+        {displayResults.map((result) => {
+          const percentage = maxCount > 0 ? Math.round((result.count / maxCount) * 100) : 0;
+          return (
+            <div key={result.label} className="flex flex-col gap-1">
+              <div className="flex justify-between text-base font-semibold text-gray-700">
+                <span>{result.label}</span>
+                <span>{percentage}%</span>
+              </div>
+              <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요' ? 'bg-blue-500' : 'bg-red-400'}`}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
             </div>
-          ))}
-        </section>
-      )}
+          );
+        })}
+      </section>
 
       <button
         onClick={handleReVote}

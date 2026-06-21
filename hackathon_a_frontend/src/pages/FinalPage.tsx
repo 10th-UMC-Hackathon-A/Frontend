@@ -5,6 +5,7 @@ import { useUserStore } from '../store/userStore';
 import { useVoteStore } from '../store/voteStore';
 import { useRoomStore } from '../store/roomStore';
 import { penaltyApi } from '../api/penaltyApi';
+import creamYou from '../assets/images/Icon/Cream/You.png';
 
 export default function FinalPage() {
   const navigate = useNavigate();
@@ -89,7 +90,14 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 bg-gray-100 rounded-2xl px-4 py-5">
+      <div className="flex items-center gap-3 bg-blue-50/50 border border-blue-200 rounded-2xl px-4 py-4">
+        <div className="w-16 h-16 shrink-0 bg-white border-2 border-blue-100 rounded-full flex items-center justify-center overflow-hidden shadow-sm">
+          <img
+            src={creamYou}
+            alt="벌칙자 프로필"
+            className="w-full h-full object-contain scale-[1.3] translate-y-2"
+          />
+        </div>
         <div>
           <p className="text-xl font-bold text-gray-900">
             {isSelf ? displayNickname : `${displayNickname} 님이 미션 수행 중`}
