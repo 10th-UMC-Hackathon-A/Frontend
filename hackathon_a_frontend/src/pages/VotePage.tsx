@@ -30,6 +30,10 @@ export default function VotePage() {
   const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || null);
   const { submitVote, isLoading, error, myVote } = useVote(roomId ?? 0);
 
+  // 진입 시 분기:
+  // - 이미 투표한 사람 → 진행 화면
+  // - 처음 들어온(미투표) 사람 → 투표 화면(추워요/더워요)을 그대로 보여준다.
+  //   (투표가 실제로 마감됐는지는 제출 시 서버 응답으로 판단해 결과 화면으로 이동)
   useEffect(() => {
     if (myVote || localStorage.getItem('myVote')) {
       navigate('/progress', { replace: true });
