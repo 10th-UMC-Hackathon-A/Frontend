@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useVoteStore } from '../store/voteStore';
-import creamDefault from '../assets/Cream/Default.png';
+import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
 
 export default function DrawPage() {
   const navigate = useNavigate();

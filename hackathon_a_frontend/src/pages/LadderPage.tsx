@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
-import creamDefault from '../assets/Cream/Default.png';
-import creamCongrats from '../assets/Cream/Congrats.png';
+import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
+import creamCongrats from '../assets/해커톤 team+/Icon/Cream/Congrats.png';
 
 const ROW_COUNT = 6;
 const DUMMY_NAMES = ['참가자1', '참가자2', '참가자3', '참가자4'];
+const AUTO_SEC = 5;
 
 export default function LadderPage() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function LadderPage() {
   const count = Math.min(rawNames.length, 5);
   const names = rawNames.slice(0, count);
   const namesRef = useRef(names);
-  namesRef.current = names;
+  useEffect(() => { namesRef.current = names; });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,6 +36,8 @@ export default function LadderPage() {
   const [animDone, setAnimDone] = useState(false);
   const [winnerIdx, setWinnerIdx] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
+  const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
 
   const getLayout = () => {
     const canvas = canvasRef.current;
@@ -154,6 +157,7 @@ export default function LadderPage() {
     const { padX, padY, colGap, rowGap } = layout;
 
     setIsAnimating(true);
+    setStartCountdown(0);
 
     const winnerResultIdx = ladderRef.current.results.indexOf('당첨');
     const points = tracePath(
@@ -180,12 +184,38 @@ export default function LadderPage() {
         setWinnerIdx(finalCol);
         setAnimDone(true);
         setIsAnimating(false);
-        setTimeout(() => setShowResult(true), 600);
+        setShowResult(true);
       }
     };
 
     animRef.current = requestAnimationFrame(animate);
   };
+
+  // 5초 후 자동 게임 시작
+  useEffect(() => {
+    if (showResult || isAnimating || animDone) return;
+    if (startCountdown <= 0) {
+      const t = setTimeout(() => handleStart(), 0);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setStartCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startCountdown, showResult, isAnimating, animDone]);
+
+  // 결과 화면: 5초 후 자동 /final 이동
+  useEffect(() => {
+    if (!showResult || winnerIdx === null) return;
+    if (resultCountdown <= 0) {
+      const winnerName = ladder.participants[winnerIdx];
+      setLoser('', winnerName);
+      navigate('/final');
+      return;
+    }
+    const t = setTimeout(() => setResultCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResult, resultCountdown, winnerIdx]);
 
   if (showResult && winnerIdx !== null) {
     const winnerName = ladder.participants[winnerIdx];
@@ -214,7 +244,7 @@ export default function LadderPage() {
           onClick={() => { setLoser('', winnerName); navigate('/final'); }}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
-          미션 확인하기
+          미션 확인하기 ({resultCountdown}초)
         </button>
       </div>
     );
@@ -267,10 +297,10 @@ export default function LadderPage() {
 
       <button
         onClick={handleStart}
-        disabled={isAnimating}
+        disabled={isAnimating || animDone}
         className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
       >
-        사다리 타기
+        {isAnimating ? '사다리 타는 중...' : `사다리 타기 (${startCountdown}초)`}
       </button>
     </div>
   );

@@ -35,6 +35,7 @@ export interface PenaltyDrawResultResDto {
   roomId: number;
   drawRound: number;
   label: string;
+  penaltyType: string;
   prizeIndex: number;
   penaltyList: string[];
 }
@@ -50,6 +51,7 @@ export interface PenaltyUserDrawResultResDto {
   roomId: number;
   drawRound: number;
   nickName: string;
+  penaltyType: string;
   winnerIndex: number;
   drawUserList: string[];
 }

@@ -1,39 +1,39 @@
 import { useNavigate } from 'react-router-dom';
+import creamError from '../assets/해커톤 team+/Character/Error.png';
 
 export default function ErrorPage() {
   const navigate = useNavigate();
 
   return (
-    <main className="flex flex-col flex-1 items-center justify-center gap-6">
-      <div className="flex justify-center">
-        <div className="bg-red-100 text-red-500 text-sm font-semibold px-5 py-2 rounded-full">
-          오류
+    <main className="flex flex-col flex-1 justify-center gap-6">
+      {/* 에러 카드 */}
+      <section className="bg-red-50 rounded-2xl px-6 py-8 flex flex-col items-center gap-4">
+        <div className="flex items-center justify-center gap-4">
+          <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-2xl font-black leading-none">!</span>
+          </div>
+          <img src={creamError} alt="에러 캐릭터" className="w-14 h-14 object-contain" />
         </div>
-      </div>
 
-      <div className="w-28 h-28 bg-gray-200 rounded-xl" aria-hidden="true" />
+        <h1 className="text-2xl font-black text-red-500 text-center">방을 찾을 수 없어요</h1>
 
-      <section className="flex flex-col items-center gap-2 text-center">
-        <p className="text-xl font-bold text-gray-900">페이지를 찾을 수 없어요</p>
-        <p className="text-sm text-gray-400">
-          잘못된 주소거나 더 이상 존재하지 않는 페이지입니다.
-        </p>
+        <ul className="flex flex-col gap-1 text-sm text-gray-600 list-disc pl-5 self-start">
+          <li>QR 코드가 잘못되었거나</li>
+          <li>방이 종료 되었거나</li>
+          <li>URL이 만료 되었을 수 있습니다</li>
+        </ul>
+
+        <p className="text-xs text-gray-400 self-start mt-2">오류 코드: ROOM_NOT_FOUND</p>
       </section>
 
-      <div className="w-full flex flex-col gap-3 mt-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition-colors"
-        >
-          이전 페이지로
-        </button>
-        <button
-          onClick={() => navigate('/', { replace: true })}
-          className="w-full bg-gray-100 text-gray-600 py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-gray-200 transition-colors"
-        >
-          처음으로
-        </button>
-      </div>
+      <p className="text-xs text-gray-400 text-center">문제가 계속되면 운영자에게 문의하세요</p>
+
+      <button
+        onClick={() => navigate('/', { replace: true })}
+        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition-colors mt-auto"
+      >
+        처음으로 돌아가기
+      </button>
     </main>
   );
 }

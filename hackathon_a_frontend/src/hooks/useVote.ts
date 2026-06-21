@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { voteApi } from '../api/voteApi';
 import { useVoteStore } from '../store/voteStore';
 import { usePolling } from './useSocket';
@@ -9,6 +11,7 @@ export const useVote = (roomId: number) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const navigate = useNavigate();
 
   const { myVote, setMyVote, setVoteResults } = useVoteStore();
 
@@ -22,7 +25,24 @@ export const useVote = (roomId: number) => {
       setMyVote(position);
       setVoteResults(result.result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '투표 제출에 실패했습니다');
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const code = err.response?.data?.code as string | undefined;
+        const message = err.response?.data?.message as string | undefined;
+        console.error('[vote]', status, code, message, err.response?.data);
+        if (status === 410 || status === 409) {
+          navigate('/progress', { replace: true });
+          return;
+        }
+        // 400: 투표 마감 또는 라운드 전환 중 → 결과 페이지로 이동
+        if (status === 400) {
+          navigate('/result', { replace: true });
+          return;
+        }
+        setError(`투표 실패 (${status} · ${code ?? message ?? '알 수 없는 오류'})`);
+      } else {
+        setError('투표 제출에 실패했습니다');
+      }
       throw err;
     } finally {
       setIsLoading(false);

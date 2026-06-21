@@ -53,7 +53,7 @@ export const dummyPenaltyApi = {
     const prizeIndex = Math.floor(Math.random() * penaltyList.length);
     return {
       timestamp: new Date().toISOString(), code: '200', message: 'OK',
-      result: { roomId, drawRound: 1, label: penaltyList[prizeIndex], prizeIndex, penaltyList },
+      result: { roomId, drawRound: 1, label: penaltyList[prizeIndex], penaltyType: 'bomb', prizeIndex, penaltyList },
     };
   },
 
@@ -62,7 +62,7 @@ export const dummyPenaltyApi = {
     const winnerIndex = Math.floor(Math.random() * DUMMY_PARTICIPANTS.length);
     return {
       timestamp: new Date().toISOString(), code: '200', message: 'OK',
-      result: { roomId, drawRound: 1, nickName: DUMMY_PARTICIPANTS[winnerIndex], winnerIndex, drawUserList: DUMMY_PARTICIPANTS },
+      result: { roomId, drawRound: 1, nickName: DUMMY_PARTICIPANTS[winnerIndex], penaltyType: 'roulette', winnerIndex, drawUserList: DUMMY_PARTICIPANTS },
     };
   },
 

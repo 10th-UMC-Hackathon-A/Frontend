@@ -1,32 +1,27 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import logo from '../assets/Logo.png';
+import iconCheck from '../assets/해커톤 team+/Icon/Check.png';
+import iconError from '../assets/해커톤 team+/Icon/Error.png';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { useRoomStore } from '../store/roomStore';
 import { useUserStore } from '../store/userStore';
 import { useGameStore } from '../store/gameStore';
+import { useVoteStore } from '../store/voteStore';
 
 const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]{2,8}$/;
 
 export default function NicknamePage() {
-  const [nickname, setNickname] = useState('');
-  const [agreed, setAgreed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [fetchedRoomName, setFetchedRoomName] = useState<string | null>(null);
-
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const { setRoomId, setRoomName } = useRoomStore();
   const { setNickname: saveNickname, setTokens } = useUserStore();
   const { reset: resetGame } = useGameStore();
+  const { reset: resetVote } = useVoteStore();
 
   const roomIdParam = searchParams.get('roomId');
-  // const roomId = roomIdParam ? Number(roomIdParam) : null; > 최종 roomId적용 할 때 주석 해제
-
-  // 테스트용 더미
   const isDummyMode = import.meta.env.VITE_USE_DUMMY_API === 'true';
   let roomId: number | null;
   if (roomIdParam) {
@@ -37,18 +32,23 @@ export default function NicknamePage() {
     roomId = null;
   }
 
+  const [nickname, setNickname] = useState('');
+  const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  // accessToken 있을 때만 재입장 확인 → 없으면 바로 폼
+  const [isChecking, setIsChecking] = useState(
+    roomId !== null && !!localStorage.getItem('accessToken')
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [fetchedRoomName, setFetchedRoomName] = useState<string | null>(null);
+
   const MAX_LENGTH = 8;
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      navigate('/vote', { replace: true });
-    }
-  }, [navigate]);
-
-  useEffect(() => {
     if (!roomId) return;
+
     resetGame();
+
     roomApi.getRooms().then((res) => {
       const found = res.result.find((r) => r.roomId === roomId);
       if (found) {
@@ -56,6 +56,42 @@ export default function NicknamePage() {
         setRoomName(found.roomName);
       }
     }).catch(() => {});
+
+    const goToVoteWith = (nickName: string, token: string, refresh = '') => {
+      localStorage.setItem('accessToken', token);
+      if (refresh) localStorage.setItem('refreshToken', refresh);
+      localStorage.setItem('roomId', String(roomId));
+      localStorage.removeItem('myVote');
+      resetVote();
+      setTokens(token, refresh);
+      setRoomId(roomId!);
+      saveNickname(nickName);
+      navigate('/vote', { replace: true });
+    };
+
+    // uid로 /participants 재호출 → 기존 참가자면 닉네임+신규토큰 반환
+    const tryJoinWithUid = () => {
+      const uid = localStorage.getItem('uid');
+      if (!uid) { setIsChecking(false); return; }
+
+      roomApi.joinParticipant('재입장', roomId!)
+        .then((res) => goToVoteWith(res.result.nickName, res.result.accessToken, res.result.refreshToken))
+        .catch(() => { setIsChecking(false); });
+    };
+
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (accessToken) {
+      // accessToken으로 방 참가 여부 확인 (닉네임 조회)
+      roomApi.verifyAccess(roomId)
+        .then((res) => goToVoteWith(res.result.nickName, accessToken, localStorage.getItem('refreshToken') ?? ''))
+        .catch(() => {
+          // 접근 불가 → 이전에 등록된 uid로 새 토큰 재발급 시도
+          localStorage.removeItem('accessToken');
+          tryJoinWithUid();
+        });
+    }
+    // accessToken 없으면 isChecking 초기값이 이미 false → 폼 바로 표시
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,12 +107,15 @@ export default function NicknamePage() {
     try {
       const result = await roomApi.joinParticipant(nickname.trim(), roomId);
       const accessToken = result.result.accessToken;
+      const refreshToken = result.result.refreshToken;
 
       localStorage.setItem('accessToken', accessToken);
+      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('roomId', String(roomId));
       localStorage.removeItem('myVote');
+      resetVote();
 
-      setTokens(accessToken, '');
+      setTokens(accessToken, refreshToken ?? '');
       setRoomId(roomId);
       saveNickname(nickname.trim());
 
@@ -85,15 +124,53 @@ export default function NicknamePage() {
       if (axios.isAxiosError(err)) {
         const code = err.response?.data?.code as string | undefined;
         const status = err.response?.status;
-        if (status === 409 || code?.includes('DUPLICATE') || code?.includes('EXIST')) {
+        // 서버 무응답(타임아웃/네트워크/CORS) → response 자체가 없음
+        if (!err.response) {
+          setError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+        } else if (status === 409 || code?.includes('DUPLICATE') || code?.includes('EXIST')) {
           setError('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.');
         } else if (status === 404) {
           setError('방을 찾을 수 없습니다. QR 코드를 다시 확인해주세요.');
+        } else if (status === 410) {
+          // 라운드 전환됨(ROOM412) → 방 정보 재조회 후 join 1회 재시도
+          localStorage.setItem('roomId', String(roomId));
+          setRoomId(roomId);
+          try {
+            await roomApi.getRoomDetails(roomId); // 방 정보 재조회
+            const retry = await roomApi.joinParticipant(nickname.trim(), roomId);
+            const at = retry.result.accessToken;
+            const rt = retry.result.refreshToken;
+            localStorage.setItem('accessToken', at);
+            if (rt) localStorage.setItem('refreshToken', rt);
+            localStorage.removeItem('myVote');
+            resetVote();
+            setTokens(at, rt ?? '');
+            saveNickname(nickname.trim());
+            navigate('/vote', { replace: true });
+            return;
+          } catch {
+            // 재시도도 실패 → 투표창 상태로 분기
+            try {
+              const detail = await roomApi.getRoomDetails(roomId);
+              const closedAt = detail.result.voteClosedAt
+                ? new Date(detail.result.voteClosedAt).getTime()
+                : null;
+              if (closedAt !== null && closedAt < Date.now()) {
+                navigate('/result', { replace: true }); // 투표 종료
+              } else {
+                navigate('/progress', { replace: true }); // 투표 진행 중
+              }
+            } catch {
+              navigate('/progress', { replace: true });
+            }
+            return;
+          }
         } else {
-          setError('입장에 실패했습니다. 다시 시도해주세요.');
+          const msg = err.response?.data?.message ?? '알 수 없는 오류';
+          setError(`입장에 실패했습니다. (${status} · ${code ?? msg})`);
         }
       } else {
-        setError('입장에 실패했습니다. 다시 시도해주세요.');
+        setError(`입장에 실패했습니다. (${err instanceof Error ? err.message : '네트워크 오류'})`);
       }
     } finally {
       setIsLoading(false);
@@ -109,6 +186,14 @@ export default function NicknamePage() {
     );
   }
 
+  if (isChecking) {
+    return (
+      <main className="flex flex-col flex-1 items-center justify-center gap-3">
+        <p className="text-sm text-gray-400">입장 정보 확인 중...</p>
+      </main>
+    );
+  }
+
   return (
     <main className="flex flex-col flex-1 justify-between">
       <section className="flex flex-col items-center gap-6 mt-6">
@@ -119,7 +204,7 @@ export default function NicknamePage() {
           </p>
         </div>
 
-        <img src={logo} alt="냉방전쟁 로고" className="w-68 object-contain" />
+        <img src={logo} alt="냉방전쟁 로고" className="w-full max-w-[260px] h-auto object-contain" />
 
         <div className="w-full flex flex-col items-center gap-1">
           <p className="text-xl font-bold text-gray-900">닉네임을 입력해 주세요</p>
@@ -129,7 +214,7 @@ export default function NicknamePage() {
         <div className="w-full flex flex-col gap-1">
           <div className="relative">
             <input
-              className="w-full bg-gray-100 rounded-xl px-4 py-3.5 pr-14 text-sm outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="w-full bg-gray-100 rounded-xl px-4 py-3.5 pr-12 text-sm outline-none focus:ring-2 focus:ring-blue-300 transition"
               placeholder="닉네임 입력"
               value={nickname}
               maxLength={MAX_LENGTH}
@@ -139,23 +224,28 @@ export default function NicknamePage() {
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleEnter()}
             />
-
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-              {nickname.length}/{MAX_LENGTH}
-            </span>
+            {nickname.length > 0 && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                <img
+                  src={isNicknameValid && !error ? iconCheck : iconError}
+                  alt={isNicknameValid && !error ? '유효' : '오류'}
+                  className="w-7 h-7 object-contain"
+                />
+              </span>
+            )}
           </div>
 
-          <p className="text-xs text-gray-400 px-1">2~8자의 한글, 영문 또는 숫자</p>
-
-          {nickname.length > 0 && !isNicknameValid && (
+          {nickname.length > 0 && !isNicknameValid && !error && (
             <p role="alert" className="text-xs text-red-400 px-1">
-              2~8자 한글·영문·숫자만 입력 가능합니다
+              닉네임 생성조건을 확인해주세요
             </p>
           )}
-
+          {nickname.length > 0 && isNicknameValid && !error && (
+            <p className="text-xs text-green-500 px-1">생성 가능한 닉네임입니다</p>
+          )}
           {error && (
             <p role="alert" className="text-xs text-red-400 px-1">
-              {error}
+              {error.includes('중복') || error.includes('사용 중') ? '중복된 닉네임입니다' : error}
             </p>
           )}
         </div>
