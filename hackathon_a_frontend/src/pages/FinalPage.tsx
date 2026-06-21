@@ -78,7 +78,7 @@ export default function FinalPage() {
   }, [isEnded]);
 
   return (
-    <div className="flex flex-col flex-1 justify-between gap-3">
+    <div className="flex flex-col flex-1 min-h-0 justify-between gap-2">
       <div className="flex justify-center">
         <div
           className={[
@@ -106,7 +106,7 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <div className="bg-blue-500 rounded-2xl px-6 py-16 flex flex-col items-center gap-3 text-center -mt-2">
+      <div className="bg-blue-500 rounded-2xl px-6 py-[clamp(24px,6vh,64px)] flex flex-col items-center gap-3 text-center">
         <p className="text-blue-200 text-sm">
           {isSelf ? '오늘의 미션' : '벌칙자가 수행 중인 미션'}
         </p>
@@ -114,8 +114,8 @@ export default function FinalPage() {
       </div>
 
       <div className="flex justify-center">
-        <div className="relative w-64 h-64 flex items-center justify-center">
-          <svg width="256" height="256" className="absolute inset-0">
+        <div className="relative w-[clamp(190px,30vh,256px)] aspect-square flex items-center justify-center">
+          <svg viewBox="0 0 256 256" className="absolute inset-0 w-full h-full">
             <defs>
               <linearGradient id="timerGradient" gradientUnits="userSpaceOnUse" x1="128" y1="0" x2="128" y2="256">
                 <stop offset="0%" stopColor="#1e40af" />
@@ -150,7 +150,7 @@ export default function FinalPage() {
 
       <button
         onClick={goToVote}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition"
+        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition"
       >
         미션 완료
       </button>

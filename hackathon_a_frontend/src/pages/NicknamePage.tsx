@@ -209,8 +209,8 @@ export default function NicknamePage() {
   }
 
   return (
-    <main className="flex flex-col flex-1 justify-between">
-      <section className="flex flex-col items-center gap-6 mt-6">
+    <main className="flex flex-col flex-1 min-h-0 justify-between gap-2">
+      <section className="flex flex-col items-center gap-[clamp(10px,2.5vh,24px)] mt-[clamp(4px,2vh,24px)] min-h-0">
         <div className="w-full bg-blue-50 rounded-2xl px-5 py-4 flex flex-col items-center gap-1">
           <span className="text-xs text-gray-400">진행 중인 방</span>
           <p className="text-lg font-bold text-gray-900">{fetchedRoomName ?? `방 #${roomId}`}</p>
@@ -219,7 +219,7 @@ export default function NicknamePage() {
         <img
           src={logo}
           alt="냉방전쟁 로고"
-          className="w-full max-w-[260px] h-auto object-contain"
+          className="w-auto max-w-[260px] max-h-[clamp(150px,28vh,260px)] object-contain"
         />
 
         <div className="w-full flex flex-col items-center gap-1">
@@ -289,7 +289,7 @@ export default function NicknamePage() {
       <button
         onClick={handleEnter}
         disabled={!isValid || isLoading}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed hover:bg-blue-400 active:bg-blue-600 transition"
+        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed hover:bg-blue-400 active:bg-blue-600 transition shrink-0"
       >
         {isLoading ? '입장 중...' : '입장하기'}
       </button>

@@ -163,7 +163,9 @@ export default function VoteResultPage() {
 
       {/* 결과 텍스트 */}
       <section className="flex flex-col items-center gap-1">
-        <p className="text-3xl leading-tight font-black text-gray-900 text-center">{resultText}</p>
+        <p className="text-[clamp(24px,3.5vh,30px)] leading-tight font-black text-gray-900 text-center">
+          {resultText}
+        </p>
       </section>
 
       {/* 투표 바 */}

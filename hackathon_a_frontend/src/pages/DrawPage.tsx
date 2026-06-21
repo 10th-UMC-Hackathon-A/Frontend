@@ -40,21 +40,27 @@ export default function DrawPage() {
   }, [countdown, navigate, resetVote]);
 
   return (
-    <main className="flex flex-col flex-1 gap-4">
+    <main className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,1.7vh,16px)]">
       <div className="flex justify-center">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
           투표 결과
         </div>
       </div>
 
-      <section className="flex flex-col items-center gap-1 mt-4">
+      <section className="flex flex-col items-center gap-1 mt-[clamp(4px,1.5vh,16px)]">
         <p className="text-xl font-bold text-gray-900">투표 마감</p>
         <p className="text-base font-semibold text-gray-400">재투표까지</p>
-        <p className="text-[96px] leading-none font-black text-gray-900 mt-1">{countdown}</p>
+        <p className="text-[clamp(64px,11vh,96px)] leading-none font-black text-gray-900 mt-1">
+          {countdown}
+        </p>
       </section>
 
-      <div className="bg-blue-50/50 rounded-2xl py-6 flex justify-center">
-        <img src={creamDefault} alt="크림 캐릭터" className="w-44 h-44 object-contain" />
+      <div className="bg-blue-50/50 rounded-2xl py-[clamp(12px,2.5vh,24px)] flex justify-center">
+        <img
+          src={creamDefault}
+          alt="크림 캐릭터"
+          className="w-[clamp(120px,20vh,176px)] h-auto aspect-square object-contain"
+        />
       </div>
 
       <p className="text-3xl font-black text-gray-900 text-center">비겼어요</p>
@@ -86,7 +92,7 @@ export default function DrawPage() {
 
       <button
         onClick={handleReVote}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
+        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
       >
         다시 투표하기
       </button>
