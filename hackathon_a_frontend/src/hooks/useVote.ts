@@ -5,7 +5,7 @@ import { voteApi } from '../api/voteApi';
 import { useVoteStore } from '../store/voteStore';
 import { usePolling } from './useSocket';
 
-const POLL_INTERVAL_MS = 30_000; // 30초
+const POLL_INTERVAL_MS = 3_000; // 3초
 
 export const useVote = (roomId: number) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,7 @@ export const useVote = (roomId: number) => {
     }
   };
 
-  // 30초마다 투표 결과 자동 갱신
+  // 3초마다 투표 결과 자동 갱신
   usePolling(fetchVoteResults, POLL_INTERVAL_MS, isPolling);
 
   return {
