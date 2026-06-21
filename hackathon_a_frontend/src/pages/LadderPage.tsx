@@ -11,6 +11,7 @@ import creamCongrats from '../assets/images/Icon/Cream/Congrats.png';
 
 const ROW_COUNT = 6;
 const AUTO_SEC = 5;
+const RESULT_AUTO_SEC = 10;
 
 const colX = (col: number, padX: number, colGap: number) => padX + col * colGap;
 const rowY = (row: number, padY: number, rowGap: number) => padY + row * rowGap;
@@ -53,7 +54,7 @@ export default function LadderPage() {
   const [winnerIdx, setWinnerIdx] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
-  const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
+  const [resultCountdown, setResultCountdown] = useState(RESULT_AUTO_SEC);
 
   const getLayout = useCallback(() => {
     const canvas = canvasRef.current;
@@ -268,9 +269,6 @@ export default function LadderPage() {
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
-        <Button variant="blue" fullWidth onClick={() => { setLoser('', winnerName); navigate('/final'); }} className="mt-auto">
-          미션 확인하기
-        </Button>
       </div>
     );
   }

@@ -8,16 +8,13 @@ import creamThinking from '../assets/images/Icon/Cream/Thinking.png';
 
 const question = 'Q. 지금 강의실 온도 어때요?';
 
-// 명세상 투표 시간은 2분 — voteClosedAt을 못 받았을 때만 쓰는 폴백 값
-const VOTE_FALLBACK_SECONDS = 120;
-
 function getFallbackSeconds(): number {
   const roundStart = Number(localStorage.getItem('roundStartTime'));
   if (roundStart) {
     const elapsed = Math.floor((Date.now() - roundStart) / 1000);
-    return Math.max(0, VOTE_FALLBACK_SECONDS - elapsed);
+    return Math.max(0, 60 - elapsed);
   }
-  return VOTE_FALLBACK_SECONDS - (new Date().getSeconds() % VOTE_FALLBACK_SECONDS);
+  return 60 - new Date().getSeconds();
 }
 
 export default function VoteProgressPage() {

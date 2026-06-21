@@ -190,8 +190,8 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <Button variant="blue" fullWidth onClick={goToVote}>
-        미션 완료
+      <Button variant="blue" fullWidth onClick={goToVote} disabled={!isSelf}>
+        {isSelf ? '미션 완료' : '미션 진행중..'}
       </Button>
     </div>
   );

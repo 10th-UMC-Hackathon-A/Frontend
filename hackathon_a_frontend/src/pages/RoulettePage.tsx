@@ -21,6 +21,7 @@ const SECTOR_COLORS = [
 ];
 
 const AUTO_SEC = 5;
+const RESULT_AUTO_SEC = 10;
 
 export default function RoulettePage() {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export default function RoulettePage() {
   const [winnerIdx, setWinnerIdx] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
-  const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
+  const [resultCountdown, setResultCountdown] = useState(RESULT_AUTO_SEC);
 
   const handleSpin = () => {
     if (isSpinning) return;
@@ -158,9 +159,6 @@ export default function RoulettePage() {
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
-        <Button variant="blue" fullWidth onClick={() => { setLoser('', participants[winnerIdx]); navigate('/final'); }} className="mt-auto">
-          미션 확인하기
-        </Button>
       </div>
     );
   }

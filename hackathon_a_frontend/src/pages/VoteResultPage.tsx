@@ -111,7 +111,8 @@ export default function VoteResultPage() {
   }, []);
 
   useEffect(() => {
-    if (isTie) {
+    // 참가자가 1명뿐이면 벌칙 게임이 의미가 없으므로 재투표로 보낸다.
+    if (isTie || total < 2) {
       navigate('/draw');
       return;
     }

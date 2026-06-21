@@ -14,6 +14,7 @@ export default function DrawPage() {
 
   const total = voteResults.reduce((sum, result) => sum + result.count, 0);
   const maxCount = voteResults.length > 0 ? Math.max(...voteResults.map((result) => result.count)) : 0;
+  const isInsufficient = total < 2;
   const displayResults =
     voteResults.length > 0
       ? voteResults
@@ -64,7 +65,9 @@ export default function DrawPage() {
         />
       </div>
 
-      <p className="text-3xl font-black text-gray-900 text-center">비겼어요</p>
+      <p className="text-3xl font-black text-gray-900 text-center">
+        {isInsufficient ? '참가자가 부족해요' : '비겼어요'}
+      </p>
 
       <section className="flex flex-col gap-3 px-2 mt-3">
         <p className="text-lg font-bold text-gray-500 text-center">{question}</p>
