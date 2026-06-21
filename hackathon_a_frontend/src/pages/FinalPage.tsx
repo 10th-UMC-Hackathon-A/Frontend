@@ -11,6 +11,18 @@ import { usePolling } from '../hooks/useSocket';
 import creamYou from '../assets/images/Icon/Cream/You.png';
 
 const ROUND_POLL_INTERVAL_MS = 3_000;
+const MISSION_START_KEY = 'missionStartTime';
+
+// 새로고침해도 미션 남은 시간이 5분으로 리셋되지 않도록 시작 시각을 localStorage에 고정한다.
+function getMissionTimeLeft(durationSec: number): number {
+  let start = Number(localStorage.getItem(MISSION_START_KEY));
+  if (!start) {
+    start = Date.now();
+    localStorage.setItem(MISSION_START_KEY, String(start));
+  }
+  const elapsed = Math.floor((Date.now() - start) / 1000);
+  return Math.max(0, durationSec - elapsed);
+}
 
 export default function FinalPage() {
   const navigate = useNavigate();
@@ -28,8 +40,8 @@ export default function FinalPage() {
   // 빈 문자열/공백도 "없음"으로 취급해 미션 텍스트가 비어 보이지 않게 한다.
   const displayMission = punishment?.trim() ? `${punishment} ${acAction}` : '미션 불러오는 중...';
 
-  const totalSeconds = punishmentSeconds || 1;
-  const [timeLeft, setTimeLeft] = useState(() => punishmentSeconds);
+  const totalSeconds = punishmentSeconds || 300;
+  const [timeLeft, setTimeLeft] = useState(() => getMissionTimeLeft(punishmentSeconds || 300));
   const isEnded = timeLeft === 0;
 
   const RADIUS = 104;
@@ -78,6 +90,7 @@ export default function FinalPage() {
     if (navigatedRef.current) return;
     navigatedRef.current = true;
     localStorage.removeItem('myVote');
+    localStorage.removeItem(MISSION_START_KEY);
     localStorage.setItem('roundStartTime', String(Date.now()));
     resetGame();
     resetVote();
