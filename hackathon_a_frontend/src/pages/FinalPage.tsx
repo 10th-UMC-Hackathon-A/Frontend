@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
 import { useUserStore } from '../store/userStore';
 import { useVoteStore } from '../store/voteStore';
 import { useRoomStore } from '../store/roomStore';
 import { penaltyApi } from '../api/penaltyApi';
+import { roomApi } from '../api/roomApi';
+import { usePolling } from '../hooks/useSocket';
 import creamYou from '../assets/images/Icon/Cream/You.png';
+
+const ROUND_POLL_INTERVAL_MS = 3_000;
 
 export default function FinalPage() {
   const navigate = useNavigate();
@@ -62,12 +66,13 @@ export default function FinalPage() {
     return `${m} : ${String(s).padStart(2, '0')}`;
   };
 
-  const goToVote = async () => {
-    try {
-      if (roomId) await penaltyApi.missionComplete(roomId);
-    } catch {
-      // 실패해도 다음 라운드로 이동
-    }
+  // 한 명이라도 /vote로 넘어가면 모든 참가자가 동시에 따라가도록,
+  // 직접 이동(버튼 클릭/내 타이머 종료)과 다른 참가자 감지(라운드 전환 폴링)를 하나로 모은다.
+  const navigatedRef = useRef(false);
+
+  const navigateToVote = () => {
+    if (navigatedRef.current) return;
+    navigatedRef.current = true;
     localStorage.removeItem('myVote');
     localStorage.setItem('roundStartTime', String(Date.now()));
     resetGame();
@@ -75,11 +80,43 @@ export default function FinalPage() {
     navigate('/vote', { replace: true });
   };
 
+  const goToVote = async () => {
+    if (navigatedRef.current) return;
+    try {
+      if (roomId) await penaltyApi.missionComplete(roomId);
+    } catch {
+      // 실패해도 다음 라운드로 이동
+    }
+    navigateToVote();
+  };
+
   useEffect(() => {
     if (!isEnded) return;
     goToVote();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnded]);
+
+  // 다른 참가자가 먼저 미션을 완료해 라운드가 넘어갔는지 drawRound로 감지해
+  // 전체 참가자를 동시에 /vote로 이동시킨다.
+  const baseDrawRoundRef = useRef<number | null>(null);
+
+  const checkRoundAdvanced = async () => {
+    if (!roomId || navigatedRef.current) return;
+    try {
+      const { result } = await roomApi.getRoomDetails(roomId);
+      if (baseDrawRoundRef.current === null) {
+        baseDrawRoundRef.current = result.drawRound;
+        return;
+      }
+      if (result.drawRound !== baseDrawRoundRef.current) {
+        navigateToVote();
+      }
+    } catch {
+      // 폴링 실패는 다음 주기에 재시도
+    }
+  };
+
+  usePolling(checkRoundAdvanced, ROUND_POLL_INTERVAL_MS, !!roomId);
 
   return (
     <div className="flex flex-col flex-1 min-h-0 justify-between gap-2">
