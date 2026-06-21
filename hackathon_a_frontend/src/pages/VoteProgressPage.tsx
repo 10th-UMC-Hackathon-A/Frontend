@@ -12,6 +12,13 @@ const question = 'Q. 지금 강의실 온도 어때요?';
 // 투표 시간 2분. 서버 voteClosedAt 조회 실패 시에만 쓰는 fallback.
 const VOTE_DURATION_SEC = 120;
 
+// 백엔드가 UTC 시각을 'Z' 없이 내려줘 KST 브라우저가 로컬로 오해하는 문제 방지.
+// 타임존 표기가 없으면 UTC로 간주해 파싱한다(동기화는 voteClosedAt 기준 그대로).
+function parseServerTime(s: string): number {
+  const hasTz = /[zZ]|[+-]\d{2}:?\d{2}$/.test(s);
+  return new Date(hasTz ? s : `${s}Z`).getTime();
+}
+
 function getFallbackSeconds(): number {
   const roundStart = Number(localStorage.getItem('roundStartTime'));
   if (roundStart) {
@@ -46,7 +53,7 @@ export default function VoteProgressPage() {
     roomApi
       .getRoomDetails(roomId)
       .then((res) => {
-        const closedAt = new Date(res.result.voteClosedAt).getTime();
+        const closedAt = parseServerTime(res.result.voteClosedAt);
         const remaining = Math.max(5, Math.ceil((closedAt - Date.now()) / 1000));
         setTimeLeft(remaining);
       })
