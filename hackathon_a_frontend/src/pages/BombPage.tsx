@@ -11,12 +11,13 @@ import creamCongrats from '../assets/images/Icon/Cream/Congrats.png';
 const DUMMY_MISSIONS = ['에어컨 1도 조절하기', '팔굽혀펴기 10개', '노래 한 소절 부르기'];
 
 const AUTO_SEC = 5;
+const RESULT_AUTO_SEC = 10;
 
 export default function BombPage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [isResult, setIsResult] = useState(false);
   const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
-  const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
+  const [resultCountdown, setResultCountdown] = useState(RESULT_AUTO_SEC);
   const navigate = useNavigate();
 
   const { roomId: storeRoomId } = useRoomStore();
@@ -108,10 +109,6 @@ export default function BombPage() {
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
-
-        <Button variant="blue" fullWidth onClick={() => navigate('/final')} className="mt-auto">
-          미션 확인하기
-        </Button>
       </div>
     );
   }
