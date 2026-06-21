@@ -65,8 +65,8 @@ export default function VotePage() {
   }
 
   return (
-    <main className="flex flex-col flex-1 justify-between">
-      <section className="flex flex-col items-center gap-5">
+    <main className="flex flex-col flex-1 min-h-0 justify-between gap-2">
+      <section className="flex flex-col items-center gap-[clamp(6px,1.5vh,20px)] min-h-0">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
           찬반 투표
         </div>
@@ -78,10 +78,10 @@ export default function VotePage() {
         <img
           src={getCreamImage(selected, voteTypes)}
           alt="크림 캐릭터"
-          className="w-[330px] h-[330px] object-contain"
+          className="w-[clamp(150px,28vh,260px)] h-auto aspect-square object-contain"
         />
 
-        <ul className="flex flex-col gap-3 w-full list-none p-0">
+        <ul className="flex flex-col gap-2 w-[clamp(250px,40vh,320px)] max-w-full list-none p-0">
           {voteTypes.map((type) => {
             const id = String(type.voteTypeId);
             const isSelected = selected === id;
@@ -114,12 +114,12 @@ export default function VotePage() {
         )}
       </section>
 
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-2 shrink-0">
         <p className="text-xs text-gray-400">ⓘ 한 번 투표하면 변경할 수 없어요</p>
         <button
           onClick={handleVote}
           disabled={!selected || isLoading || voteTypes.length === 0}
-          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition"
+          className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition"
         >
           {isLoading ? '투표 중...' : '투표하기'}
         </button>
