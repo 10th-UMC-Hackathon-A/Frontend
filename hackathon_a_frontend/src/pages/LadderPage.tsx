@@ -84,7 +84,8 @@ export default function LadderPage() {
       ctx.beginPath();
       ctx.moveTo(x, padY);
       ctx.lineTo(x, padY + ROW_COUNT * rowGap);
-      ctx.strokeStyle = '#d1d5db';
+      // gray-100 배경 위에서 잘 보이도록 gray-400로 대비 확보
+      ctx.strokeStyle = '#9ca3af';
       ctx.lineWidth = 7;
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -97,7 +98,7 @@ export default function LadderPage() {
       ctx.beginPath();
       ctx.moveTo(x1, y);
       ctx.lineTo(x2, y);
-      ctx.strokeStyle = '#d1d5db';
+      ctx.strokeStyle = '#9ca3af';
       ctx.lineWidth = 7;
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -135,13 +136,16 @@ export default function LadderPage() {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const observer = new ResizeObserver(() => {
-      canvas.width = container.clientWidth;
+    const sizeAndDraw = () => {
+      canvas.width = container.clientWidth || 300;
       canvas.height = container.clientHeight || 240;
       drawLadder(ladderRef.current, null, null);
-    });
+    };
 
+    const observer = new ResizeObserver(sizeAndDraw);
     observer.observe(container);
+    // ResizeObserver 첫 콜백이 지연될 수 있어 마운트 직후 한 번 직접 그린다.
+    sizeAndDraw();
     return () => observer.disconnect();
   }, [drawLadder]);
 
