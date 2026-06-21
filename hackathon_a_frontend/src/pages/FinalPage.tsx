@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/common/Button';
 import { useGameStore } from '../store/gameStore';
 import { useUserStore } from '../store/userStore';
 import { useVoteStore } from '../store/voteStore';
