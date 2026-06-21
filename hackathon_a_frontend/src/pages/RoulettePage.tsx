@@ -4,15 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import { calculateRouletteRotation, getRandomSpinDuration } from '../utils/roulette';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
-import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
-import creamCongrats from '../assets/해커톤 team+/Icon/Cream/Congrats.png';
+import { FALLBACK_PARTICIPANT_NAMES } from '../constants/participants';
+import creamYou from '../assets/images/Icon/Cream/You.png';
+import creamCongrats from '../assets/images/Icon/Cream/Congrats.png';
 
 const SECTOR_COLORS = [
-  '#DBEAFE', '#93C5FD', '#60A5FA', '#FEE2E2',
-  '#FECACA', '#FDE68A', '#BBF7D0', '#DFDBFE',
+  '#DBEAFE',
+  '#93C5FD',
+  '#60A5FA',
+  '#FEE2E2',
+  '#FECACA',
+  '#FDE68A',
+  '#BBF7D0',
+  '#DFDBFE',
 ];
 
-const DUMMY_NAMES = ['도로로', '기로로', '케로로', '타마마', '쿠루루', '한로로', '크롱롱', '도로로2'];
 const AUTO_SEC = 5;
 
 export default function RoulettePage() {
@@ -23,7 +29,7 @@ export default function RoulettePage() {
   const rawNames =
     storeParticipants.length >= 2
       ? storeParticipants.map((p) => p.nickname)
-      : DUMMY_NAMES;
+      : FALLBACK_PARTICIPANT_NAMES;
   const count = Math.min(rawNames.length, 8);
   const participants = rawNames.slice(0, count);
 
@@ -38,7 +44,6 @@ export default function RoulettePage() {
   const handleSpin = () => {
     if (isSpinning) return;
 
-    // eslint-disable-next-line react-hooks/purity
     const selectedIdx = Math.floor(Math.random() * count);
     const duration = getRandomSpinDuration();
     const targetRotation = rotation + calculateRouletteRotation(selectedIdx, count);
@@ -68,7 +73,7 @@ export default function RoulettePage() {
     }
     const t = setTimeout(() => setStartCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startCountdown, showResult, isSpinning]);
 
   // 결과 화면: 5초 후 자동 /final 이동
@@ -81,7 +86,7 @@ export default function RoulettePage() {
     }
     const t = setTimeout(() => setResultCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showResult, resultCountdown, winnerIdx]);
 
   // SVG wheel
@@ -120,14 +125,20 @@ export default function RoulettePage() {
       <div className="flex flex-col flex-1 gap-6">
         <div className="flex justify-center">
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
-            투표 결과
+            룰렛 결과
           </div>
         </div>
-        <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
-        <div className="relative bg-blue-500 rounded-2xl p-6 flex flex-col items-center gap-3">
-
-          <div className="w-36 h-36 bg-white rounded-full flex items-center justify-center overflow-hidden">
-            <img src={creamDefault} alt="크림 캐릭터" className="w-44 h-44 object-contain" />
+        <p className="text-center text-lg font-semibold text-gray-500">두구두구... 벌칙자는?</p>
+        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-8 flex flex-col items-center gap-3">
+          <span className="absolute top-4 right-5 text-4xl font-black text-blue-200">
+            {resultCountdown}
+          </span>
+          <div className="w-36 h-36 bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
+            <img
+              src={creamYou}
+              alt="당첨된 크림 캐릭터"
+              className="w-full h-full object-contain scale-110 translate-y-2"
+            />
           </div>
           <p className="text-3xl font-black text-white mt-1">{participants[winnerIdx]}</p>
           <p className="text-white font-semibold">당첨!</p>
@@ -135,13 +146,16 @@ export default function RoulettePage() {
         </div>
         <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <img src={creamCongrats} alt="축하 캐릭터" className="w-44 h-44 object-contain" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-52 h-52 object-contain" />
         </div>
         <button
-          onClick={() => { setLoser('', participants[winnerIdx]); navigate('/final'); }}
-          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto"
+          onClick={() => {
+            setLoser('', participants[winnerIdx]);
+            navigate('/final');
+          }}
+          className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
-          미션 확인하기 ({resultCountdown}초)
+          미션 확인하기
         </button>
       </div>
     );
@@ -158,7 +172,8 @@ export default function RoulettePage() {
         {/* 룰렛 휠 */}
         <div className="relative flex items-center justify-center">
           <div className="absolute -top-1 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <div className="w-0 h-0
+            <div
+              className="w-0 h-0
               border-l-[9px] border-l-transparent
               border-r-[9px] border-r-transparent
               border-t-[18px] border-t-blue-500"
@@ -213,12 +228,16 @@ export default function RoulettePage() {
               <div
                 key={i}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl border
-                  ${!isSpinning && winnerIdx === i
-                    ? 'bg-blue-50 border-blue-300'
-                    : 'bg-white border-gray-200'}`}
+                  ${
+                    !isSpinning && winnerIdx === i
+                      ? 'bg-blue-50 border-blue-300'
+                      : 'bg-white border-gray-200'
+                  }`}
               >
-                <span className={`text-sm font-medium truncate
-                  ${!isSpinning && winnerIdx === i ? 'text-blue-600' : 'text-gray-700'}`}>
+                <span
+                  className={`text-sm font-medium truncate
+                  ${!isSpinning && winnerIdx === i ? 'text-blue-600' : 'text-gray-700'}`}
+                >
                   {name}
                 </span>
               </div>

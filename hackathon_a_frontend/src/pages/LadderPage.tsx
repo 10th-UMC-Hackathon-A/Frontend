@@ -1,15 +1,18 @@
 // src/pages/LadderPage.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateLadder, tracePath, type LadderData, type PathPoint } from '../utils/ladder';
 import { useRoomStore } from '../store/roomStore';
 import { useGameStore } from '../store/gameStore';
-import creamDefault from '../assets/해커톤 team+/Icon/Cream/Default.png';
-import creamCongrats from '../assets/해커톤 team+/Icon/Cream/Congrats.png';
+import { FALLBACK_PARTICIPANT_NAMES } from '../constants/participants';
+import creamYou from '../assets/images/Icon/Cream/You.png';
+import creamCongrats from '../assets/images/Icon/Cream/Congrats.png';
 
 const ROW_COUNT = 6;
-const DUMMY_NAMES = ['참가자1', '참가자2', '참가자3', '참가자4'];
 const AUTO_SEC = 5;
+
+const colX = (col: number, padX: number, colGap: number) => padX + col * colGap;
+const rowY = (row: number, padY: number, rowGap: number) => padY + row * rowGap;
 
 export default function LadderPage() {
   const navigate = useNavigate();
@@ -19,11 +22,13 @@ export default function LadderPage() {
   const rawNames =
     storeParticipants.length >= 2
       ? storeParticipants.map((p) => p.nickname)
-      : DUMMY_NAMES;
+      : FALLBACK_PARTICIPANT_NAMES;
   const count = Math.min(rawNames.length, 5);
   const names = rawNames.slice(0, count);
   const namesRef = useRef(names);
-  useEffect(() => { namesRef.current = names; });
+  useEffect(() => {
+    namesRef.current = names;
+  });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,7 +44,7 @@ export default function LadderPage() {
   const [startCountdown, setStartCountdown] = useState(AUTO_SEC);
   const [resultCountdown, setResultCountdown] = useState(AUTO_SEC);
 
-  const getLayout = () => {
+  const getLayout = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const W = canvas.width;
@@ -49,12 +54,9 @@ export default function LadderPage() {
     const colGap = (W - padX * 2) / (count - 1);
     const rowGap = (H - padY * 2) / ROW_COUNT;
     return { W, H, padX, padY, colGap, rowGap };
-  };
+  }, [count]);
 
-  const colX = (col: number, padX: number, colGap: number) => padX + col * colGap;
-  const rowY = (row: number, padY: number, rowGap: number) => padY + row * rowGap;
-
-  function drawLadder(data: LadderData, points: PathPoint[] | null, progress: number | null) {
+  const drawLadder = useCallback((data: LadderData, points: PathPoint[] | null, progress: number | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -114,7 +116,7 @@ export default function LadderPage() {
 
       ctx.stroke();
     }
-  }
+  }, [count, getLayout]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -129,7 +131,7 @@ export default function LadderPage() {
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, []);
+  }, [drawLadder]);
 
   const handleStart = () => {
     if (isAnimating) return;
@@ -200,7 +202,7 @@ export default function LadderPage() {
     }
     const t = setTimeout(() => setStartCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startCountdown, showResult, isAnimating, animDone]);
 
   // 결과 화면: 5초 후 자동 /final 이동
@@ -214,7 +216,7 @@ export default function LadderPage() {
     }
     const t = setTimeout(() => setResultCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showResult, resultCountdown, winnerIdx]);
 
   if (showResult && winnerIdx !== null) {
@@ -226,11 +228,17 @@ export default function LadderPage() {
             사다리 결과
           </div>
         </div>
-        <p className="text-center text-sm text-gray-400">두구두구... 벌칙자는?</p>
-        <div className="relative bg-blue-500 rounded-2xl p-8 flex flex-col items-center gap-3">
-
-          <div className="w-36 h-36 bg-white rounded-full flex items-center justify-center overflow-hidden">
-            <img src={creamDefault} alt="크림 캐릭터" className="w-36 h-36 object-contain" />
+        <p className="text-center text-lg font-semibold text-gray-500">두구두구... 벌칙자는?</p>
+        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-8 flex flex-col items-center gap-3">
+          <span className="absolute top-4 right-5 text-4xl font-black text-blue-200">
+            {resultCountdown}
+          </span>
+          <div className="w-36 h-36 bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
+            <img
+              src={creamYou}
+              alt="당첨된 크림 캐릭터"
+              className="w-full h-full object-contain scale-110 translate-y-2"
+            />
           </div>
           <p className="text-3xl font-black text-white mt-1">{winnerName}</p>
           <p className="text-white font-semibold">당첨!</p>
@@ -238,13 +246,16 @@ export default function LadderPage() {
         </div>
         <div className="flex flex-col items-center gap-2">
           <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
-          <img src={creamCongrats} alt="축하 캐릭터" className="w-44 h-44 object-contain" />
+          <img src={creamCongrats} alt="축하 캐릭터" className="w-52 h-52 object-contain" />
         </div>
         <button
-          onClick={() => { setLoser('', winnerName); navigate('/final'); }}
+          onClick={() => {
+            setLoser('', winnerName);
+            navigate('/final');
+          }}
           className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
         >
-          미션 확인하기 ({resultCountdown}초)
+          미션 확인하기
         </button>
       </div>
     );
@@ -285,8 +296,12 @@ export default function LadderPage() {
           <div className="flex justify-between px-2">
             {ladder.participants.map((p, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
-                <span className={`text-xs truncate max-w-12 text-center font-medium
-                  ${animDone && winnerIdx === i ? 'text-blue-500' : 'text-gray-500'}`}>{p}</span>
+                <span
+                  className={`text-xs truncate max-w-12 text-center font-medium
+                  ${animDone && winnerIdx === i ? 'text-blue-500' : 'text-gray-500'}`}
+                >
+                  {p}
+                </span>
               </div>
             ))}
           </div>

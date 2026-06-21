@@ -66,6 +66,7 @@ export const dummyRoomApi = {
   },
 
   verifyAccess: async (_roomId: number): Promise<VerifyAccessResponse> => {
+    void _roomId;
     await delay();
     return {
       timestamp: new Date().toISOString(), code: '200', message: 'OK',
