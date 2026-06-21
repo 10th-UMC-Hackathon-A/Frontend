@@ -9,6 +9,7 @@ interface GameState {
   winnerVoteLabel: string | null;
   loserId: string | null;
   loserNickname: string | null;
+  loserIndex: number | null;
   punishment: string | null;
   punishmentSeconds: number;
 
@@ -16,6 +17,7 @@ interface GameState {
   setMiniGameMode: (mode: MiniGameMode) => void;
   setWinnerVoteLabel: (label: string) => void;
   setLoser: (id: string, nickname: string) => void;
+  setLoserIndex: (index: number | null) => void;
   setPunishment: (punishment: string, seconds?: number) => void;
   reset: () => void;
 }
@@ -26,6 +28,7 @@ const INITIAL_STATE = {
   winnerVoteLabel: null,
   loserId: null,
   loserNickname: null,
+  loserIndex: null,
   punishment: null,
   punishmentSeconds: 300,
 };
@@ -37,6 +40,7 @@ export const useGameStore = create<GameState>((set) => ({
   setMiniGameMode: (mode) => set({ miniGameMode: mode }),
   setWinnerVoteLabel: (label) => set({ winnerVoteLabel: label }),
   setLoser: (id, nickname) => set({ loserId: id, loserNickname: nickname }),
+  setLoserIndex: (index) => set({ loserIndex: index }),
   setPunishment: (punishment, seconds = 300) => set({ punishment, punishmentSeconds: seconds }),
   reset: () => set(INITIAL_STATE),
 }));

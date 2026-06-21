@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import Layout from '../components/common/Layout';
+import RequireAuth from '../components/common/RequireAuth';
 import NicknamePage from '../pages/NicknamePage';
 import VotePage from '../pages/VotePage';
 import VoteProgressPage from '../pages/VoteProgressPage';
@@ -17,15 +18,21 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: '/', element: <NicknamePage /> },
-      { path: '/vote', element: <VotePage /> },
-      { path: '/progress', element: <VoteProgressPage /> },
-      { path: '/result', element: <VoteResultPage /> },
-      { path: '/draw', element: <DrawPage /> },
-      { path: '/bomb', element: <BombPage /> },
-      { path: '/roulette', element: <RoulettePage /> },
-      { path: '/ladder', element: <LadderPage /> },
-      { path: '/final', element: <FinalPage /> },
       { path: '/terms', element: <TermsPage /> },
+      // accessToken 없이 진입 시 닉네임 화면으로 돌려보냄 (토큰 필수 화면 보호)
+      {
+        element: <RequireAuth />,
+        children: [
+          { path: '/vote', element: <VotePage /> },
+          { path: '/progress', element: <VoteProgressPage /> },
+          { path: '/result', element: <VoteResultPage /> },
+          { path: '/draw', element: <DrawPage /> },
+          { path: '/bomb', element: <BombPage /> },
+          { path: '/roulette', element: <RoulettePage /> },
+          { path: '/ladder', element: <LadderPage /> },
+          { path: '/final', element: <FinalPage /> },
+        ],
+      },
       { path: '*', element: <ErrorPage /> },
     ],
   },

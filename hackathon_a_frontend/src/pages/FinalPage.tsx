@@ -17,7 +17,8 @@ export default function FinalPage() {
 
   const isSelf = !!loserNickname && loserNickname === nickname;
   const displayNickname = loserNickname ?? '알 수 없음';
-  const displayMission = punishment ?? '미션 불러오는 중...';
+  // 빈 문자열/공백도 "없음"으로 취급해 미션 텍스트가 비어 보이지 않게 한다.
+  const displayMission = punishment?.trim() ? punishment : '미션 불러오는 중...';
 
   const totalSeconds = punishmentSeconds || 1;
   const [timeLeft, setTimeLeft] = useState(() => punishmentSeconds);
@@ -32,12 +33,15 @@ export default function FinalPage() {
 
   useEffect(() => {
     if (!roomId) return;
+    const fallbackMission = () =>
+      FALLBACK_MISSIONS[Math.floor(Math.random() * FALLBACK_MISSIONS.length)];
     penaltyApi.drawPenalty(roomId)
-      .then((res) => setPunishment(res.result.label))
-      .catch(() => {
-        const fallback = FALLBACK_MISSIONS[Math.floor(Math.random() * FALLBACK_MISSIONS.length)];
-        setPunishment(fallback);
-      });
+      .then((res) => {
+        // 서버가 빈 라벨을 주면 랜덤 미션으로 대체 (미션카드 텍스트 누락 방지)
+        const label = res.result.label?.trim();
+        setPunishment(label ? label : fallbackMission());
+      })
+      .catch(() => setPunishment(fallbackMission()));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

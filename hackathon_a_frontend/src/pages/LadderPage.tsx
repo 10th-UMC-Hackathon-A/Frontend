@@ -17,10 +17,11 @@ const rowY = (row: number, padY: number, rowGap: number) => padY + row * rowGap;
 export default function LadderPage() {
   const navigate = useNavigate();
   const { participants: storeParticipants } = useRoomStore();
-  const { setLoser } = useGameStore();
+  const { setLoser, loserIndex } = useGameStore();
 
+  // 실제 추첨 후보(백엔드 drawUserList)를 그대로 사용. 데이터가 없을 때만 임시 이름 사용.
   const rawNames =
-    storeParticipants.length >= 2
+    storeParticipants.length >= 1
       ? storeParticipants.map((p) => p.nickname)
       : FALLBACK_PARTICIPANT_NAMES;
   const count = Math.min(rawNames.length, 5);
@@ -30,11 +31,20 @@ export default function LadderPage() {
     namesRef.current = names;
   });
 
+  // 백엔드가 정한 벌칙자 인덱스(표시 범위 밖이면 무시 → 랜덤 당첨)
+  const targetIdx = loserIndex !== null && loserIndex >= 0 && loserIndex < count ? loserIndex : null;
+  const targetIdxRef = useRef(targetIdx);
+  useEffect(() => {
+    targetIdxRef.current = targetIdx;
+  });
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number | null>(null);
 
-  const [ladder, setLadder] = useState<LadderData>(() => generateLadder(count, ROW_COUNT, names));
+  const [ladder, setLadder] = useState<LadderData>(() =>
+    generateLadder(count, ROW_COUNT, names, targetIdx)
+  );
   const ladderRef = useRef<LadderData>(ladder);
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -144,7 +154,12 @@ export default function LadderPage() {
         canvas.height = container.clientHeight || 240;
       }
       const currentNames = namesRef.current;
-      const newLadder = generateLadder(currentNames.length, ROW_COUNT, currentNames);
+      const newLadder = generateLadder(
+        currentNames.length,
+        ROW_COUNT,
+        currentNames,
+        targetIdxRef.current
+      );
       ladderRef.current = newLadder;
       setLadder(newLadder);
       setAnimDone(false);
@@ -171,7 +186,7 @@ export default function LadderPage() {
       colGap,
       rowGap
     );
-    const duration = 2000;
+    const duration = 4000;
     const start = performance.now();
 
     const animate = (now: number) => {
@@ -245,22 +260,13 @@ export default function LadderPage() {
           <p className="text-blue-200 text-sm">사다리 결과로 선정되었어요</p>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
+          <p className="text-base font-semibold text-gray-800">잠시 후 미션 화면으로 이동합니다</p>
           <img
             src={creamCongrats}
             alt="축하 캐릭터"
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
-        <button
-          onClick={() => {
-            setLoser('', winnerName);
-            navigate('/final');
-          }}
-          className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
-        >
-          미션 확인하기
-        </button>
       </div>
     );
   }
@@ -313,14 +319,6 @@ export default function LadderPage() {
 
         <p className="text-sm text-gray-400">'당첨'에 도착한 사람이 벌칙자!</p>
       </div>
-
-      <button
-        onClick={handleStart}
-        disabled={isAnimating || animDone}
-        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-2 shrink-0"
-      >
-        {isAnimating ? '사다리 타는 중...' : `사다리 타기 (${startCountdown}초)`}
-      </button>
     </div>
   );
 }

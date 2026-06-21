@@ -24,7 +24,11 @@ export default function VoteProgressPage() {
   const { voteResults } = useVoteStore();
   const { startPolling, stopPolling } = useVote(roomId);
 
-  const [timeLeft, setTimeLeft] = useState(getFallbackSeconds);
+  // null = 아직 voteClosedAt 미확인. 확인 전에는 결과 화면으로 보내지 않는다.
+  // roomId가 없으면 서버 조회가 불가하므로 즉시 fallback 값으로 시작.
+  const [timeLeft, setTimeLeft] = useState<number | null>(() =>
+    roomId ? null : getFallbackSeconds()
+  );
 
   useEffect(() => {
     startPolling();
@@ -32,7 +36,7 @@ export default function VoteProgressPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // voteClosedAt 기준으로 타이머 동기화
+  // voteClosedAt 기준으로 타이머 동기화 (조회 실패 시에만 fallback 사용)
   useEffect(() => {
     if (!roomId) return;
     roomApi
@@ -42,11 +46,13 @@ export default function VoteProgressPage() {
         const remaining = Math.max(0, Math.ceil((closedAt - Date.now()) / 1000));
         setTimeLeft(remaining);
       })
-      .catch(() => {});
+      .catch(() => setTimeLeft(getFallbackSeconds()));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    if (timeLeft === null) return; // voteClosedAt 확인 전엔 대기
+
     if (timeLeft === 0) {
       navigate('/result');
       return;
@@ -54,6 +60,7 @@ export default function VoteProgressPage() {
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
+        if (prev === null) return prev;
         if (prev <= 1) {
           clearInterval(timer);
           return 0;
@@ -100,7 +107,9 @@ export default function VoteProgressPage() {
       {/* 타이머 카드 */}
       <section className="w-full max-w-[330px] self-center bg-gray-100 rounded-2xl py-[clamp(14px,2.5svh,22px)] flex flex-col items-center gap-1 mt-[clamp(20px,4svh,44px)]">
         <p className="text-base text-gray-400 font-medium">남은 시간</p>
-        <p className="text-5xl font-black text-gray-900 tracking-tight">{formatTime(timeLeft)}</p>
+        <p className="text-5xl font-black text-gray-900 tracking-tight">
+          {timeLeft === null ? '--:--' : formatTime(timeLeft)}
+        </p>
       </section>
 
       {/* 투표 바 */}

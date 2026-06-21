@@ -24,10 +24,11 @@ const AUTO_SEC = 5;
 export default function RoulettePage() {
   const navigate = useNavigate();
   const { participants: storeParticipants } = useRoomStore();
-  const { setLoser } = useGameStore();
+  const { setLoser, loserIndex } = useGameStore();
 
+  // 실제 추첨 후보(백엔드 drawUserList)를 그대로 사용. 데이터가 없을 때만 임시 이름 사용.
   const rawNames =
-    storeParticipants.length >= 2
+    storeParticipants.length >= 1
       ? storeParticipants.map((p) => p.nickname)
       : FALLBACK_PARTICIPANT_NAMES;
   const count = Math.min(rawNames.length, 8);
@@ -44,7 +45,11 @@ export default function RoulettePage() {
   const handleSpin = () => {
     if (isSpinning) return;
 
-    const selectedIdx = Math.floor(Math.random() * count);
+    // 백엔드가 정한 벌칙자에게 도착. 범위를 벗어나면(데이터 없음) 랜덤.
+    const selectedIdx =
+      loserIndex !== null && loserIndex >= 0 && loserIndex < count
+        ? loserIndex
+        : Math.floor(Math.random() * count);
     const duration = getRandomSpinDuration();
     const targetRotation = rotation + calculateRouletteRotation(selectedIdx, count);
 
@@ -145,22 +150,13 @@ export default function RoulettePage() {
           <p className="text-blue-200 text-sm">룰렛 결과로 선정되었어요</p>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
+          <p className="text-base font-semibold text-gray-800">잠시 후 미션 화면으로 이동합니다</p>
           <img
             src={creamCongrats}
             alt="축하 캐릭터"
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
-        <button
-          onClick={() => {
-            setLoser('', participants[winnerIdx]);
-            navigate('/final');
-          }}
-          className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
-        >
-          미션 확인하기
-        </button>
       </div>
     );
   }
@@ -249,14 +245,6 @@ export default function RoulettePage() {
           </div>
         </div>
       </div>
-
-      <button
-        onClick={handleSpin}
-        disabled={isSpinning}
-        className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-2 shrink-0"
-      >
-        {isSpinning ? '돌리는 중...' : `룰렛 돌리기 (${startCountdown}초)`}
-      </button>
     </div>
   );
 }

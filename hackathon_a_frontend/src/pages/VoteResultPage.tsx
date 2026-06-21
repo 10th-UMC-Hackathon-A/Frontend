@@ -11,7 +11,7 @@ import creamHot from '../assets/images/Icon/Cream/Hot.png';
 
 type MiniGameMode = 'bomb' | 'roulette' | 'ladder';
 
-const COUNTDOWN_SEC = 5;
+const COUNTDOWN_SEC = 10;
 const question = 'Q. 지금 강의실 온도 어때요?';
 
 function selectGameByCount(voterCount: number): MiniGameMode {
@@ -43,7 +43,7 @@ function mapPenaltyType(penaltyType: string): MiniGameMode | null {
 export default function VoteResultPage() {
   const navigate = useNavigate();
   const { voteResults, setVoteResults } = useVoteStore();
-  const { setMiniGameMode, setWinnerVoteLabel, setLoser } = useGameStore();
+  const { setMiniGameMode, setWinnerVoteLabel, setLoser, setLoserIndex } = useGameStore();
   const { roomId: storeRoomId, setParticipants } = useRoomStore();
   const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || 0);
 
@@ -95,6 +95,10 @@ export default function VoteResultPage() {
                 isHost: false,
                 isConnected: true,
               }))
+            );
+            // 백엔드가 정한 벌칙자 인덱스(룰렛/사다리가 이 사람에게 도착하도록)
+            setLoserIndex(
+              typeof res.result.winnerIndex === 'number' ? res.result.winnerIndex : null
             );
           }
           // 백엔드가 정한 게임타입이 있으면 우선 적용

@@ -27,7 +27,7 @@ export default function BombPage() {
     setIsSpinning(true);
     setStartCountdown(0);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     try {
       // 정상 흐름에서는 결과 페이지에서 정해진 벌칙자를 그대로 사용한다.
@@ -100,20 +100,13 @@ export default function BombPage() {
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
+          <p className="text-base font-semibold text-gray-800">잠시 후 미션 화면으로 이동합니다</p>
           <img
             src={creamCongrats}
             alt="축하 캐릭터"
             className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
-
-        <button
-          onClick={() => navigate('/final')}
-          className="w-full bg-blue-500 text-white py-3 rounded-2xl text-base font-semibold mt-auto cursor-pointer hover:bg-blue-400 transition-colors"
-        >
-          미션 확인하기
-        </button>
       </div>
     );
   }
@@ -132,16 +125,9 @@ export default function BombPage() {
           src={lotsBox}
           alt="제비뽑기 통"
           className={`w-auto max-h-[360px] object-contain transition-transform ${isSpinning ? 'animate-bounce' : ''}`}
+          style={isSpinning ? { animationDuration: '1.6s' } : undefined}
         />
       </div>
-
-      <button
-        onClick={handleDraw}
-        disabled={isSpinning}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold disabled:bg-gray-200 disabled:text-gray-400 transition mt-4"
-      >
-        {isSpinning ? '뽑는 중...' : `제비 뽑기 (${startCountdown}초)`}
-      </button>
     </div>
   );
 }
