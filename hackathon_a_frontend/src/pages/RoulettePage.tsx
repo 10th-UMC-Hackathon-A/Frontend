@@ -25,10 +25,11 @@ const AUTO_SEC = 5;
 export default function RoulettePage() {
   const navigate = useNavigate();
   const { participants: storeParticipants } = useRoomStore();
-  const { setLoser } = useGameStore();
+  const { setLoser, loserIndex } = useGameStore();
 
+  // 실제 추첨 후보(백엔드 drawUserList)를 그대로 사용. 데이터가 없을 때만 임시 이름 사용.
   const rawNames =
-    storeParticipants.length >= 2
+    storeParticipants.length >= 1
       ? storeParticipants.map((p) => p.nickname)
       : FALLBACK_PARTICIPANT_NAMES;
   const count = Math.min(rawNames.length, 8);
@@ -45,7 +46,11 @@ export default function RoulettePage() {
   const handleSpin = () => {
     if (isSpinning) return;
 
-    const selectedIdx = Math.floor(Math.random() * count);
+    // 백엔드가 정한 벌칙자에게 도착. 범위를 벗어나면(데이터 없음) 랜덤.
+    const selectedIdx =
+      loserIndex !== null && loserIndex >= 0 && loserIndex < count
+        ? loserIndex
+        : Math.floor(Math.random() * count);
     const duration = getRandomSpinDuration();
     const targetRotation = rotation + calculateRouletteRotation(selectedIdx, count);
 
@@ -123,18 +128,18 @@ export default function RoulettePage() {
 
   if (showResult && winnerIdx !== null) {
     return (
-      <div className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,2vh,24px)]">
+      <div className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,2svh,20px)]">
         <div className="flex justify-center">
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
             룰렛 결과
           </div>
         </div>
         <p className="text-center text-lg font-semibold text-gray-500">두구두구... 벌칙자는?</p>
-        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-[clamp(16px,3vh,32px)] flex flex-col items-center gap-2">
+        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-[clamp(14px,2.5svh,26px)] flex flex-col items-center gap-2">
           <span className="absolute top-4 right-5 text-4xl font-black text-blue-200">
             {resultCountdown}
           </span>
-          <div className="w-[clamp(112px,16vh,144px)] aspect-square bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
+          <div className="w-[clamp(96px,14svh,132px)] aspect-square bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
             <img
               src={creamYou}
               alt="당첨된 크림 캐릭터"
@@ -146,11 +151,11 @@ export default function RoulettePage() {
           <p className="text-blue-200 text-sm">룰렛 결과로 선정되었어요</p>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
+          <p className="text-base font-semibold text-gray-800">잠시 후 미션 화면으로 이동합니다</p>
           <img
             src={creamCongrats}
             alt="축하 캐릭터"
-            className="w-[clamp(120px,20vh,208px)] h-auto aspect-square object-contain"
+            className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
         <Button variant="blue" fullWidth onClick={() => { setLoser('', participants[winnerIdx]); navigate('/final'); }} className="mt-auto">
@@ -162,7 +167,7 @@ export default function RoulettePage() {
 
   return (
     <div className="flex flex-col flex-1 justify-between overflow-hidden">
-      <div className="flex flex-col items-center gap-[clamp(8px,2vh,16px)] flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-col items-center gap-[clamp(8px,2svh,16px)] flex-1 min-h-0 overflow-hidden">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
           룰렛 추첨
         </div>
@@ -181,7 +186,7 @@ export default function RoulettePage() {
 
           <svg
             viewBox={`0 0 ${SIZE} ${SIZE}`}
-            className="w-[clamp(210px,34vh,280px)] aspect-square"
+            className="w-[clamp(210px,34svh,280px)] aspect-square"
             style={{
               transform: `rotate(${rotation}deg)`,
               transition: isSpinning

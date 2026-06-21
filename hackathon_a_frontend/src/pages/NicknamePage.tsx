@@ -42,6 +42,8 @@ export default function NicknamePage() {
   );
   const [error, setError] = useState<string | null>(null);
   const [fetchedRoomName, setFetchedRoomName] = useState<string | null>(null);
+  // null=확인 전, true=방 존재, false=목록에 없음(삭제/존재하지 않는 방)
+  const [roomExists, setRoomExists] = useState<boolean | null>(null);
 
   const MAX_LENGTH = 8;
 
@@ -54,12 +56,17 @@ export default function NicknamePage() {
       .getRooms()
       .then((res) => {
         const found = res.result.find((r) => r.roomId === roomId);
+        // 목록에 없으면 삭제/존재하지 않는 방 → 입장 불가로 표시
+        setRoomExists(!!found);
         if (found) {
           setFetchedRoomName(found.roomName);
           setRoomName(found.roomName);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // 목록 조회 실패(네트워크 등)는 존재 여부를 단정하지 않음
+        setRoomExists(null);
+      });
 
     const goToVoteWith = (nickName: string, token: string, refresh = '') => {
       localStorage.setItem('accessToken', token);
@@ -164,20 +171,10 @@ export default function NicknamePage() {
             navigate('/vote', { replace: true });
             return;
           } catch {
-            // 재시도도 실패 → 투표창 상태로 분기
-            try {
-              const detail = await roomApi.getRoomDetails(roomId);
-              const closedAt = detail.result.voteClosedAt
-                ? new Date(detail.result.voteClosedAt).getTime()
-                : null;
-              if (closedAt !== null && closedAt < Date.now()) {
-                navigate('/result', { replace: true }); // 투표 종료
-              } else {
-                navigate('/progress', { replace: true }); // 투표 진행 중
-              }
-            } catch {
-              navigate('/progress', { replace: true });
-            }
+            // 재시도도 실패 = 토큰 발급 불가(라운드 전환/종료된 방).
+            // 토큰 없이 게임 화면으로 보내면 가드가 닉네임으로 되돌려 무한 반복되므로
+            // 여기서 명확히 안내하고 닉네임 화면에 머문다.
+            setError('현재 이 방은 입장할 수 없어요. 라운드가 종료되었거나 전환 중입니다. 새 방으로 다시 시도해주세요.');
             return;
           }
         } else {
@@ -201,6 +198,16 @@ export default function NicknamePage() {
     );
   }
 
+  // 방 목록에 없는 경우(삭제/존재하지 않는 방) → 입장 불가 안내
+  if (roomExists === false) {
+    return (
+      <main className="flex flex-col flex-1 items-center justify-center gap-4">
+        <p className="text-base font-medium text-gray-700">삭제되었거나 존재하지 않는 방입니다.</p>
+        <p className="text-sm text-gray-400">방 #{roomId} · 새 방으로 다시 시도해주세요.</p>
+      </main>
+    );
+  }
+
   if (isChecking) {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-3">
@@ -211,7 +218,7 @@ export default function NicknamePage() {
 
   return (
     <main className="flex flex-col flex-1 min-h-0 justify-between gap-2">
-      <section className="flex flex-col items-center gap-[clamp(10px,2.5vh,24px)] mt-[clamp(4px,2vh,24px)] min-h-0">
+      <section className="flex flex-col items-center gap-[clamp(10px,2.5svh,24px)] mt-[clamp(4px,2svh,24px)] min-h-0">
         <div className="w-full bg-blue-50 rounded-2xl px-5 py-4 flex flex-col items-center gap-1">
           <span className="text-xs text-gray-400">진행 중인 방</span>
           <p className="text-lg font-bold text-gray-900">{fetchedRoomName ?? `방 #${roomId}`}</p>
@@ -220,7 +227,7 @@ export default function NicknamePage() {
         <img
           src={logo}
           alt="냉방전쟁 로고"
-          className="w-auto max-w-[260px] max-h-[clamp(150px,28vh,260px)] object-contain"
+          className="w-auto max-w-[260px] max-h-[clamp(150px,28svh,260px)] object-contain"
         />
 
         <div className="w-full flex flex-col items-center gap-1">

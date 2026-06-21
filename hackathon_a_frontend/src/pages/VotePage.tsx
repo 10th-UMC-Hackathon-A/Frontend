@@ -31,6 +31,10 @@ export default function VotePage() {
   const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || null);
   const { submitVote, isLoading, error, myVote } = useVote(roomId ?? 0);
 
+  // 진입 시 분기:
+  // - 이미 투표한 사람 → 진행 화면
+  // - 처음 들어온(미투표) 사람 → 투표 화면(추워요/더워요)을 그대로 보여준다.
+  //   (투표가 실제로 마감됐는지는 제출 시 서버 응답으로 판단해 결과 화면으로 이동)
   useEffect(() => {
     if (myVote || localStorage.getItem('myVote')) {
       navigate('/progress', { replace: true });
@@ -67,7 +71,7 @@ export default function VotePage() {
 
   return (
     <main className="flex flex-col flex-1 min-h-0 justify-between gap-2">
-      <section className="flex flex-col items-center gap-[clamp(6px,1.5vh,20px)] min-h-0">
+      <section className="flex flex-col items-center gap-[clamp(6px,1.5svh,20px)] min-h-0">
         <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
           찬반 투표
         </div>
@@ -79,10 +83,10 @@ export default function VotePage() {
         <img
           src={getCreamImage(selected, voteTypes)}
           alt="크림 캐릭터"
-          className="w-[clamp(150px,28vh,260px)] h-auto aspect-square object-contain"
+          className="w-[clamp(130px,24svh,220px)] h-auto aspect-square object-contain"
         />
 
-        <ul className="flex flex-col gap-2 w-[clamp(250px,40vh,320px)] max-w-full list-none p-0">
+        <ul className="flex flex-col gap-2 w-[clamp(230px,37svh,310px)] max-w-full list-none p-0">
           {voteTypes.map((type) => {
             const id = String(type.voteTypeId);
             const isSelected = selected === id;

@@ -18,10 +18,11 @@ const rowY = (row: number, padY: number, rowGap: number) => padY + row * rowGap;
 export default function LadderPage() {
   const navigate = useNavigate();
   const { participants: storeParticipants } = useRoomStore();
-  const { setLoser } = useGameStore();
+  const { setLoser, loserIndex } = useGameStore();
 
+  // 실제 추첨 후보(백엔드 drawUserList)를 그대로 사용. 데이터가 없을 때만 임시 이름 사용.
   const rawNames =
-    storeParticipants.length >= 2
+    storeParticipants.length >= 1
       ? storeParticipants.map((p) => p.nickname)
       : FALLBACK_PARTICIPANT_NAMES;
   const count = Math.min(rawNames.length, 5);
@@ -31,11 +32,20 @@ export default function LadderPage() {
     namesRef.current = names;
   });
 
+  // 백엔드가 정한 벌칙자 인덱스(표시 범위 밖이면 무시 → 랜덤 당첨)
+  const targetIdx = loserIndex !== null && loserIndex >= 0 && loserIndex < count ? loserIndex : null;
+  const targetIdxRef = useRef(targetIdx);
+  useEffect(() => {
+    targetIdxRef.current = targetIdx;
+  });
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number | null>(null);
 
-  const [ladder, setLadder] = useState<LadderData>(() => generateLadder(count, ROW_COUNT, names));
+  const [ladder, setLadder] = useState<LadderData>(() =>
+    generateLadder(count, ROW_COUNT, names, targetIdx)
+  );
   const ladderRef = useRef<LadderData>(ladder);
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -145,7 +155,12 @@ export default function LadderPage() {
         canvas.height = container.clientHeight || 240;
       }
       const currentNames = namesRef.current;
-      const newLadder = generateLadder(currentNames.length, ROW_COUNT, currentNames);
+      const newLadder = generateLadder(
+        currentNames.length,
+        ROW_COUNT,
+        currentNames,
+        targetIdxRef.current
+      );
       ladderRef.current = newLadder;
       setLadder(newLadder);
       setAnimDone(false);
@@ -172,7 +187,7 @@ export default function LadderPage() {
       colGap,
       rowGap
     );
-    const duration = 2000;
+    const duration = 4000;
     const start = performance.now();
 
     const animate = (now: number) => {
@@ -223,18 +238,18 @@ export default function LadderPage() {
   if (showResult && winnerIdx !== null) {
     const winnerName = ladder.participants[winnerIdx];
     return (
-      <div className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,2vh,24px)]">
+      <div className="flex flex-col flex-1 min-h-0 gap-[clamp(8px,2svh,20px)]">
         <div className="flex justify-center">
           <div className="bg-blue-100 text-blue-500 text-sm font-semibold px-5 py-2 rounded-full">
             사다리 결과
           </div>
         </div>
         <p className="text-center text-lg font-semibold text-gray-500">두구두구... 벌칙자는?</p>
-        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-[clamp(16px,3vh,32px)] flex flex-col items-center gap-2">
+        <div className="relative mx-4 bg-blue-600 rounded-2xl px-6 py-[clamp(14px,2.5svh,26px)] flex flex-col items-center gap-2">
           <span className="absolute top-4 right-5 text-4xl font-black text-blue-200">
             {resultCountdown}
           </span>
-          <div className="w-[clamp(112px,16vh,144px)] aspect-square bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
+          <div className="w-[clamp(96px,14svh,132px)] aspect-square bg-white rounded-full border-[5px] border-blue-100 flex items-center justify-center overflow-hidden">
             <img
               src={creamYou}
               alt="당첨된 크림 캐릭터"
@@ -246,11 +261,11 @@ export default function LadderPage() {
           <p className="text-blue-200 text-sm">사다리 결과로 선정되었어요</p>
         </div>
         <div className="flex flex-col items-center gap-2">
-          <p className="text-base font-semibold text-gray-800">다음 화면에서 미션을 확인하세요</p>
+          <p className="text-base font-semibold text-gray-800">잠시 후 미션 화면으로 이동합니다</p>
           <img
             src={creamCongrats}
             alt="축하 캐릭터"
-            className="w-[clamp(120px,20vh,208px)] h-auto aspect-square object-contain"
+            className="w-[clamp(105px,17svh,176px)] h-auto aspect-square object-contain"
           />
         </div>
         <Button variant="blue" fullWidth onClick={() => { setLoser('', winnerName); navigate('/final'); }} className="mt-auto">
@@ -286,7 +301,7 @@ export default function LadderPage() {
           <div
             ref={containerRef}
             className="w-full flex-1 flex flex-col"
-            style={{ minHeight: 'clamp(150px, 27vh, 200px)' }}
+            style={{ minHeight: 'clamp(150px, 27svh, 200px)' }}
           >
             <canvas ref={canvasRef} className="w-full h-full" />
           </div>

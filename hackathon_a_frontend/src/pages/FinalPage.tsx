@@ -18,7 +18,8 @@ export default function FinalPage() {
 
   const isSelf = !!loserNickname && loserNickname === nickname;
   const displayNickname = loserNickname ?? '알 수 없음';
-  const displayMission = punishment ?? '미션 불러오는 중...';
+  // 빈 문자열/공백도 "없음"으로 취급해 미션 텍스트가 비어 보이지 않게 한다.
+  const displayMission = punishment?.trim() ? punishment : '미션 불러오는 중...';
 
   const totalSeconds = punishmentSeconds || 1;
   const [timeLeft, setTimeLeft] = useState(() => punishmentSeconds);
@@ -33,12 +34,15 @@ export default function FinalPage() {
 
   useEffect(() => {
     if (!roomId) return;
+    const fallbackMission = () =>
+      FALLBACK_MISSIONS[Math.floor(Math.random() * FALLBACK_MISSIONS.length)];
     penaltyApi.drawPenalty(roomId)
-      .then((res) => setPunishment(res.result.label))
-      .catch(() => {
-        const fallback = FALLBACK_MISSIONS[Math.floor(Math.random() * FALLBACK_MISSIONS.length)];
-        setPunishment(fallback);
-      });
+      .then((res) => {
+        // 서버가 빈 라벨을 주면 랜덤 미션으로 대체 (미션카드 텍스트 누락 방지)
+        const label = res.result.label?.trim();
+        setPunishment(label ? label : fallbackMission());
+      })
+      .catch(() => setPunishment(fallbackMission()));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -107,7 +111,7 @@ export default function FinalPage() {
         </div>
       </div>
 
-      <div className="bg-blue-500 rounded-2xl px-6 py-[clamp(24px,6vh,64px)] flex flex-col items-center gap-3 text-center">
+      <div className="bg-blue-500 rounded-2xl px-6 py-[clamp(24px,6svh,64px)] flex flex-col items-center gap-3 text-center">
         <p className="text-blue-200 text-sm">
           {isSelf ? '오늘의 미션' : '벌칙자가 수행 중인 미션'}
         </p>
@@ -115,7 +119,7 @@ export default function FinalPage() {
       </div>
 
       <div className="flex justify-center">
-        <div className="relative w-[clamp(190px,30vh,256px)] aspect-square flex items-center justify-center">
+        <div className="relative w-[clamp(190px,30svh,256px)] aspect-square flex items-center justify-center">
           <svg viewBox="0 0 256 256" className="absolute inset-0 w-full h-full">
             <defs>
               <linearGradient id="timerGradient" gradientUnits="userSpaceOnUse" x1="128" y1="0" x2="128" y2="256">

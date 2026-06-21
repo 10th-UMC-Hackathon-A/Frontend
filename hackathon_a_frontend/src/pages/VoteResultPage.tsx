@@ -11,7 +11,7 @@ import creamHot from '../assets/images/Icon/Cream/Hot.png';
 
 type MiniGameMode = 'bomb' | 'roulette' | 'ladder';
 
-const COUNTDOWN_SEC = 5;
+const COUNTDOWN_SEC = 10;
 const question = 'Q. 지금 강의실 온도 어때요?';
 
 function selectGameByCount(voterCount: number): MiniGameMode {
@@ -43,7 +43,7 @@ function mapPenaltyType(penaltyType: string): MiniGameMode | null {
 export default function VoteResultPage() {
   const navigate = useNavigate();
   const { voteResults, setVoteResults } = useVoteStore();
-  const { setMiniGameMode, setWinnerVoteLabel, setLoser } = useGameStore();
+  const { setMiniGameMode, setWinnerVoteLabel, setLoser, setLoserIndex } = useGameStore();
   const { roomId: storeRoomId, setParticipants } = useRoomStore();
   const roomId = storeRoomId ?? (Number(localStorage.getItem('roomId')) || 0);
 
@@ -96,6 +96,10 @@ export default function VoteResultPage() {
                 isConnected: true,
               }))
             );
+            // 백엔드가 정한 벌칙자 인덱스(룰렛/사다리가 이 사람에게 도착하도록)
+            setLoserIndex(
+              typeof res.result.winnerIndex === 'number' ? res.result.winnerIndex : null
+            );
           }
           // 백엔드가 정한 게임타입이 있으면 우선 적용
           const mode = mapPenaltyType(res.result.penaltyType);
@@ -147,7 +151,7 @@ export default function VoteResultPage() {
       <section className="flex flex-col items-center gap-1">
         <p className="text-xl font-bold text-gray-900">투표 마감</p>
         <p className="text-sm text-gray-400">{subtitleText}</p>
-        <p className="text-[clamp(96px,16vh,120px)] leading-none font-black text-gray-900">
+        <p className="text-[clamp(72px,13svh,110px)] leading-none font-black text-gray-900">
           {countdown}
         </p>
       </section>
@@ -157,13 +161,13 @@ export default function VoteResultPage() {
         <img
           src={getCreamImage()}
           alt="크림 캐릭터"
-          className="w-[clamp(220px,32vh,290px)] h-auto aspect-square object-contain"
+          className="w-[clamp(170px,27svh,250px)] h-auto aspect-square object-contain"
         />
       </div>
 
       {/* 결과 텍스트 */}
       <section className="flex flex-col items-center gap-1">
-        <p className="text-[clamp(24px,3.5vh,30px)] leading-tight font-black text-gray-900 text-center">
+        <p className="text-[clamp(22px,3.5svh,30px)] leading-tight font-black text-gray-900 text-center">
           {resultText}
         </p>
       </section>
