@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../components/common/Button';
+import { Input } from '../components/common/Input';
+import { Loading } from '../components/common/Loading';
 import axios from 'axios';
 import logo from '../assets/Logo.png';
 import iconCheck from '../assets/images/Icon/Check.png';
@@ -154,27 +156,24 @@ export default function NicknamePage() {
         } else if (status === 404) {
           setError('방을 찾을 수 없습니다. QR 코드를 다시 확인해주세요.');
         } else if (status === 410) {
-          // 라운드 전환됨(ROOM412) → 방 정보 재조회 후 join 1회 재시도
-          localStorage.setItem('roomId', String(roomId));
-          setRoomId(roomId);
+          // 라운드 전환 중 → 잠시 대기 후 1회 재시도
           try {
-            await roomApi.getRoomDetails(roomId); // 방 정보 재조회
+            await new Promise((r) => setTimeout(r, 1500));
             const retry = await roomApi.joinParticipant(nickname.trim(), roomId);
             const at = retry.result.accessToken;
             const rt = retry.result.refreshToken;
             localStorage.setItem('accessToken', at);
             if (rt) localStorage.setItem('refreshToken', rt);
+            localStorage.setItem('roomId', String(roomId));
             localStorage.removeItem('myVote');
             resetVote();
             setTokens(at, rt ?? '');
+            setRoomId(roomId);
             saveNickname(nickname.trim());
             navigate('/vote', { replace: true });
             return;
           } catch {
-            // 재시도도 실패 = 토큰 발급 불가(라운드 전환/종료된 방).
-            // 토큰 없이 게임 화면으로 보내면 가드가 닉네임으로 되돌려 무한 반복되므로
-            // 여기서 명확히 안내하고 닉네임 화면에 머문다.
-            setError('현재 이 방은 입장할 수 없어요. 라운드가 종료되었거나 전환 중입니다. 새 방으로 다시 시도해주세요.');
+            setError('아직 라운드가 시작되지 않았어요. 잠시 후 다시 입장해주세요.');
             return;
           }
         } else {
@@ -211,7 +210,7 @@ export default function NicknamePage() {
   if (isChecking) {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-3">
-        <p className="text-sm text-gray-400">입장 정보 확인 중...</p>
+        <Loading message="입장 정보 확인 중..." />
       </main>
     );
   }
@@ -237,16 +236,14 @@ export default function NicknamePage() {
 
         <div className="w-full flex flex-col gap-1">
           <div className="relative">
-            <input
-              className="w-full bg-gray-100 rounded-xl px-4 py-3.5 pr-12 text-sm outline-none focus:ring-2 focus:ring-blue-300 transition"
-              placeholder="닉네임 입력"
+            <Input
+              variant="rounded"
               value={nickname}
+              onChange={(value) => { setNickname(value); setError(null); }}
+              placeholder="닉네임 입력"
               maxLength={MAX_LENGTH}
-              onChange={(e) => {
-                setNickname(e.target.value);
-                setError(null);
-              }}
               onKeyDown={(e) => e.key === 'Enter' && handleEnter()}
+              className="pr-12"
             />
             {nickname.length > 0 && (
               <span className="absolute right-3 top-1/2 -translate-y-1/2">

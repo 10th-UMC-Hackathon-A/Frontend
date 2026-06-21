@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/common/Button';
 import creamError from '../assets/images/Character/Error.png';
 
 export default function ErrorPage() {
@@ -32,12 +33,9 @@ export default function ErrorPage() {
 
       <p className="text-xs text-gray-400 px-2">문제가 계속되면 운영자에게 문의하세요</p>
 
-      <button
-        onClick={() => navigate('/', { replace: true })}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition-colors mt-auto"
-      >
+      <Button variant="blue" fullWidth onClick={() => navigate('/', { replace: true })} className="mt-auto">
         처음으로 돌아가기
-      </button>
+      </Button>
     </main>
   );
 }

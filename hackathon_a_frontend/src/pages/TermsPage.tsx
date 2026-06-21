@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/common/Button';
 
 export default function TermsPage() {
   const navigate = useNavigate();
@@ -43,12 +44,9 @@ export default function TermsPage() {
         </div>
       </section>
 
-      <button
-        onClick={() => navigate(-1)}
-        className="w-full bg-blue-500 text-white py-4 rounded-2xl text-base font-semibold cursor-pointer hover:bg-blue-400 transition-colors"
-      >
+      <Button variant="blue" fullWidth onClick={() => navigate(-1)}>
         확인했습니다
-      </button>
+      </Button>
     </main>
   );
 }

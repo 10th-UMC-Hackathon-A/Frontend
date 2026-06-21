@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ProgressBar } from '../components/common/ProgressBar';
 import { useVote } from '../hooks/useVote';
 import { useVoteStore } from '../store/voteStore';
 import { useRoomStore } from '../store/roomStore';
@@ -120,18 +121,12 @@ export default function VoteProgressPage() {
         {displayResults.map((result) => {
           const percentage = total > 0 ? Math.round((result.count / total) * 100) : 0;
           return (
-            <div key={result.label} className="flex flex-col gap-1.5">
-              <div className="flex justify-between text-base font-semibold text-gray-700">
-                <span>{result.label}</span>
-                <span>{percentage}%</span>
-              </div>
-              <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ${result.label === '추워요' ? 'bg-blue-400' : 'bg-red-400'}`}
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-            </div>
+            <ProgressBar
+              key={result.label}
+              value={percentage}
+              label={result.label}
+              barClassName={result.label === '추워요' ? 'bg-blue-400' : 'bg-red-400'}
+            />
           );
         })}
       </section>
